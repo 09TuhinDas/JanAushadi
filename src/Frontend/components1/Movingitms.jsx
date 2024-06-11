@@ -1,5 +1,6 @@
 import React from "react";
 import "../App.css";
+import { NavLink } from "react-router-dom";
 
 function Movingitms() {
   return (
@@ -18,6 +19,7 @@ function Movingitms() {
               </li>
             </button>
           </div>
+
           <li className="list-none flex-auto my-auto text-3xl text-red-600">
             <a href="/">View Entire List</a>
           </li>

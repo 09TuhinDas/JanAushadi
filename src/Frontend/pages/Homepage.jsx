@@ -10,7 +10,7 @@ import DuePay from "../components1/DuePay";
 
 function Home() {
   return (
-    <>
+    <div className="w-auto h-auto">
       <div className="flex mt-[5px]">
         <Netsale />
         <Movingitms />
@@ -24,7 +24,7 @@ function Home() {
       <div id="refil-stk" align="right">
         <RefilStk />
       </div>
-    </>
+    </div>
   );
 }
 
