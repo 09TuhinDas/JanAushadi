@@ -1,5 +1,6 @@
-import react from "react";
+import react, { useEffect } from "react";
 import "../App.css";
+import { useTable } from "react-table";
 
 function PCdetails() {
   return (
@@ -137,40 +138,51 @@ function PCdetails() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <div className="ml-[9px] flex gap-0 px-4  mt-1.5 text-[13px] font-bold text-center text-black border-t-2 border-b border-black border-solid bg-zinc-300 border-x-2 h-[70px] ">
-            <div className="justify-center px-2 py-4 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300">
-              S.No
-            </div>
-            <div className="justify-center px-2 py-3.5 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300">
-              Drug Code
-            </div>
-            <div className="justify-center px-16 py-4 border-r-2 border-black border-solid bg-zinc-300 ">
-              Product Name
-            </div>
-            <div className="justify-center px-7 py-4 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300 max-md:px-5">
-              Batch
-            </div>
-            <div className="justify-center items-start px-9 py-3.5 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300 max-md:px-5">
-              Qty
-            </div>
-            <div className="justify-center items-start px-7 py-4 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300 max-md:px-5">
-              Pack
-            </div>
-            <div className="justify-center items-start px-8 py-4 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300 max-md:px-5">
-              MRP
-            </div>
-            <div className="justify-center px-5 py-4 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300">
-              Disc%
-            </div>
-            <div className="justify-center px-5 py-3.5 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300">
-              Mfg. Date
-            </div>
-            <div className="justify-center px-5 py-3.5 whitespace-nowrap border-r-2 border-black border-solid bg-zinc-300">
-              Expiry
-            </div>
-            <div className="justify-center px-3 py-4 whitespace-nowrap border-r-2 border-black border-solid  bg-zinc-300">
-              Amount
-            </div>
+          <div className="mt-[9px] ml-[9px] w-auto mr-[9px] h-auto">
+            <table>
+              <thead className="flex">
+                <tr>
+                  <th className="ml-[9px] gap-0 px-1 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    S.No
+                  </th>
+                  <th className="ml-[9px] gap-0 px-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Drug code
+                  </th>
+                  <th className=" gap-0 px-12 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2  bg-white border-t border-b border-black  text-center">
+                    Product Name
+                  </th>
+                  <th className="gap-0 px-7 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Batch
+                  </th>
+                  <th className="gap-0 px-3 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Qty.
+                  </th>
+                  <th className="gap-0 px-3 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black ] text-center">
+                    Pack
+                  </th>
+                  <th className="gap-0 px-7 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    MRP.
+                  </th>
+                  <th className="gap-0 px-3 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Disc%
+                  </th>
+                  <th className="gap-0 px-9 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Mfg. Date
+                  </th>
+                  <th className="gap-0 px-9 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Expiry
+                  </th>
+                  <th className="gap-0 px-3 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
