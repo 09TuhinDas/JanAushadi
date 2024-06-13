@@ -5,9 +5,9 @@ import { Link, NavLink } from "react-router-dom";
 function Navbar() {
   return (
     <nav className="fixed w-full top-0 left-0 overflow-x-hidden ">
-      <div className="self-stretch h-[30px] bg-[rgba(11,27,166,0.81)]"></div>
+      <div className="self-stretch h-[30px] bg-blue-800"></div>
       <nav className="items-container">
-        <ul className="list-none bg-[rgba(217,_217,_217,_0.5)] p-[5px] m-0 border-solid border border-[rgba(0,_0,_0,_1)] flex overflow-hidden ">
+        <ul className="list-none bg-zinc-300 p-[5px] m-0 border-solid border border-[rgba(0,_0,_0,_1)] flex overflow-hidden ">
           {[
             { label: "Home", path: "/" },
             { label: "Sales", path: "/" },
