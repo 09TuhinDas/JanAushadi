@@ -6,6 +6,8 @@ import "./App.css";
 import Home from "./pages/Homepage";
 import QuickBilling from "./pages/QuickBilling";
 import ScrollToTop from "./ScrolltoTop";
+import Inventory from "./pages/Inventory";
+import InventAdd from "./components2/InventAdd";
 
 function App() {
   return (
@@ -14,7 +16,9 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/QuickBilling" element={<QuickBilling />} />
+        <Route path="/quickBilling" element={<QuickBilling />} />
+        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/InventAdd" element={<InventAdd />} />
       </Routes>
     </Router>
   );

@@ -12,9 +12,9 @@ function Navbar() {
             { label: "Home", path: "/" },
             { label: "Sales", path: "/" },
             { label: "Expense", path: "/" },
-            { label: "Inventory", path: "/" },
+            { label: "Inventory", path: "/inventory" },
             { label: "Reports", path: "/" },
-            { label: "Quick Billing", path: "/QuickBilling" },
+            { label: "Quick Billing", path: "/quickBilling" },
             { label: "Find Invoice", path: "/" },
           ].map((item, index) => (
             <React.Fragment key={index}>
