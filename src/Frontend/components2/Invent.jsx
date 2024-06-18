@@ -27,11 +27,6 @@ function Invent() {
           <li className="list-none text-[25px]">Add Items</li>
         </button>
 
-        <button className="mt-[100px] ml-[20px] shadow-sm rounded-[30.859px] justify-center px-8 py-4 border border-black border-solid bg-zinc-300 hover:bg-green-500 bg-opacity-90 max-md:px-5 active:border-white duration-300 active:text-white">
-          <li className="list-none text-[25px]" href="/">
-            Edit Items
-          </li>
-        </button>
         <button className="mt-[100px] ml-[70px] mr-[190px] shadow-sm rounded-[30.859px]  px-8 py-4 justify-center   border border-black border-solid bg-zinc-300 hover:bg-blue-700 bg-opacity-90 max-md:px-5 active:border-white duration-300 active:text-white">
           <li className="list-none text-[25px]" href="/">
             View Items
@@ -53,49 +48,83 @@ function Invent() {
           </li>
         </button>
       </div>
-      <div className="overflow-x-auto overflow-y-auto">
-        <table>
-          <thead className="mt-[40px] ml-[20px] mr-[20px] flex">
+      <div className="overflow-x-auto overflow-y-auto mt-[70px] w-6/8 ml-[20px] bg-[white] border-shadow: 1px 1px 8px rgba(0, 0, 0, 0.065) p-[30px]">
+        <table
+          className="border border-solid border-[black] w-full border-collapse"
+          cellPadding={20}
+          cellSpacing={0}
+          border={1}
+        >
+          <thead>
             <tr>
-              <th className="ml-[9px] gap-0 px-1 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 S.No
               </th>
-              <th className="ml-[9px] gap-0 px-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Drug code
               </th>
-              <th className=" gap-0 px-20 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2  bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[15px]">
                 Product Name
               </th>
-              <th className="gap-0 px-7 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Batch No.
               </th>
-              <th className="gap-0 px-3 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Stock Qty.
               </th>
-              <th className="gap-0 px-3 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black ] text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Pack
               </th>
-              <th className="gap-0 px-7 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Purchase Value
               </th>
-              <th className="gap-0 px-7 py-7 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 MRP.
               </th>
-              <th className="gap-0 px-3 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Disc%
               </th>
-              <th className="gap-0 px-9 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Mfg. Date
               </th>
-              <th className="gap-0 px-9 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Expiry
               </th>
-              <th className="gap-0 px-3 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Amount
+              </th>
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
+                Action
               </th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody className="p-[10px] text-center">
+            <tr>
+              <td className="border border-solid border-[black] "></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="border border-solid border-[black]"></td>
+              <td className="">
+                <button className="border-0 px-2.5 py-2 rounded-[5px] bg-[red] outline:none text-[white]">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <Link
+                  className=" px-2.5 py-2.5 rounded-[5px] bg-[green] text-[white] my-0 mx-2.5"
+                  to={"/edit"}
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </Link>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
