@@ -29,7 +29,7 @@ function InventAdd() {
   const submitForm = async (e) => {
     e.preventDefault();
     await axios
-      .post("http://localhost:8000/api/create", user)
+      .post("http://localhost:5173/api/create", user)
       .then((response) => {
         console.log(response);
       })
@@ -41,7 +41,7 @@ function InventAdd() {
       <div className="mt-[80px] ml-[9px] flex flex-col grow shrink-0 bg-stone-300 py-1 px-2 text-[27px] font-bold  border-t-2 border-b border-black border-solid basis-0 border-x-2 w-auto h-[55px] text-center">
         Add Items
       </div>
-      <div class="Add Items">
+      <div className="Add Items">
         <div className=" ml-[9px] shrink-0 bg-white  h-auto w-auto">
           <form
             className="mt-[20px] ml-[9px] text-[30px]"
@@ -72,7 +72,7 @@ function InventAdd() {
               <label htmlFor="Batchno">Batch No.: </label>
               <input
                 className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px] "
-                type="text"
+                type="Number"
                 id="Batchno"
                 name="Batchno"
                 onChange={inputHandler}
@@ -135,7 +135,7 @@ function InventAdd() {
               <label htmlFor="MRP.">MRP.: </label>
               <input
                 className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[150px]"
-                type="number"
+                type="Number"
                 id="MRP"
                 name="MRP"
                 onChange={inputHandler}
@@ -145,7 +145,7 @@ function InventAdd() {
               <label htmlFor="Tax">Tax: </label>
               <input
                 className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px]"
-                type="number"
+                type="Number"
                 id="Tax"
                 name="Tax"
                 onChange={inputHandler}
@@ -155,7 +155,7 @@ function InventAdd() {
               <label htmlFor="amount">Amount: </label>
               <input
                 className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[170px] "
-                type="number"
+                type="Number"
                 id="amount"
                 placeholder="0.00"
                 name="amount"
