@@ -39,8 +39,19 @@ app.post('/create', async(req, res) => {
     res.send({success : 'true', message : "data saved successfully", data: data})
 })
 
+
+app.get('/getUser/:id', async (req, res) => { // Corrected route parameter syntax
+    const id = req.params.id;
+    const data = await userModel.findById({_id:id}); // Simplified findById usage
+    if (data) {
+        res.status(200).json({success: 'true', message: "Data fetched successfully", data: data});
+    } else {
+        res.status(404).json({success: 'false', message: "Data not found"});
+    }
+})
+
 // update data
-app.put("/update", async(req, res) => {
+app.put("/update/:id", async(req, res) => {
     console.log(req.body)
     const {id,...rest} = req.body
     console.log(rest)

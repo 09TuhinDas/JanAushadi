@@ -8,6 +8,7 @@ import QuickBilling from "./pages/QuickBilling";
 import ScrollToTop from "./ScrolltoTop";
 import Inventory from "./pages/Inventory";
 import InventAdd from "./components2/InventAdd";
+import EditInvent from "./components2/EditInvent";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/quickBilling" element={<QuickBilling />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/InventAdd" element={<InventAdd />} />
+        <Route path="/EditInvent/:id" element={<EditInvent />} />
       </Routes>
     </Router>
   );

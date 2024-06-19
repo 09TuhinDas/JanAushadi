@@ -7,20 +7,6 @@ import { Link } from "react-router-dom";
 axios.defaults.baseURL = "http://localhost:8080/";
 
 function Invent() {
-  const [formData, setFormData] = useState({
-    DrugCode: "",
-    ProductName: "",
-    BatchNo: "",
-    Quantity: "",
-    Discount: "",
-    MfgDate: "",
-    Expire: "",
-    Pack: "",
-    MRP: "",
-    Tax: "",
-    amount: "",
-  });
-
   const [dataList, setDataList] = useState([]);
 
   const getFetchData = async () => {
@@ -192,7 +178,7 @@ function Invent() {
                   <td className="border border-solid border-[black] border-collapse  p-[10px]">
                     <Link
                       className=" px-2.5 py-2.5 rounded-[5px] bg-[green] text-[white] my-0 mx-2.5"
-                      to={"/edit"}
+                      to={`/EditInvent/${e._id}`}
                     >
                       <i className="fa-solid fa-pen"></i>
                     </Link>
