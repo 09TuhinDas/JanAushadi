@@ -51,13 +51,17 @@ app.get('/getUser/:id', async (req, res) => { // Corrected route parameter synta
 })
 
 // update data
-app.put("/update/:id", async(req, res) => {
-    console.log(req.body)
-    const {id,...rest} = req.body
-    console.log(rest)
-    const data = await userModel.updateOne({_id : id},rest)
-    res.send({success : 'true', message : "data updated successfully", data : data})
-})
+app.put("/update/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const { ...rest } = req.body;
+      const data = await userModel.updateOne({ _id: id }, { $set: rest });
+      res.send({ success: true, message: "Data updated successfully", data: data });
+    } catch (error) {
+      console.error("Failed to update data:", error);
+      res.status(500).send({ success: false, message: "Failed to update data" });
+    }
+  });
 
 
 //delete data

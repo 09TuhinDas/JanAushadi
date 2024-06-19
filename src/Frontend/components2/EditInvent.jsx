@@ -22,6 +22,8 @@ function EditInvent() {
     amount: "",
   });
 
+  const [dataList, setDataList] = useState({});
+
   const handleonChange = (e) => {
     const { value, name } = e.target;
     setFormDataEdit((preve) => {
@@ -38,6 +40,7 @@ function EditInvent() {
       console.log(response.data);
       if (response.data.success) {
         setDataList(response.data.data);
+        setFormDataEdit(response.data.data);
       }
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -51,11 +54,16 @@ function EditInvent() {
 
   const updateForm = async (e) => {
     e.preventDefault();
-    const data = await axios.put(`/update/${id}`, EditformData);
-    console.log(data);
-    if (data.data.success) {
-      getFetchData();
-      alert(data.data.message);
+    try {
+      const response = await axios.put(`/update/${id}`, EditformData);
+      console.log(response.data);
+      if (response.data.success) {
+        getFetchData();
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("Failed to update data:", error);
+      // Handle error appropriately
     }
   };
 
@@ -78,8 +86,8 @@ function EditInvent() {
                 type="number"
                 id="DrugCode"
                 name="DrugCode"
-                onChange={handleonChange}
                 value={EditformData.DrugCode}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[7px]">
@@ -89,6 +97,7 @@ function EditInvent() {
                 type="text"
                 id="ProductName"
                 name="ProductName"
+                value={EditformData.ProductName}
                 onChange={handleonChange}
               />
             </div>
@@ -99,6 +108,7 @@ function EditInvent() {
                 type="Number"
                 id="BatchNo"
                 name="BatchNo"
+                value={EditformData.BatchNo}
                 onChange={handleonChange}
               />
             </div>
@@ -110,6 +120,7 @@ function EditInvent() {
                 id="Quantity"
                 placeholder="0"
                 name="Quantity"
+                value={EditformData.Quantity}
                 onChange={handleonChange}
               />
             </div>
@@ -121,6 +132,7 @@ function EditInvent() {
                 id="Discount"
                 placeholder="0.00"
                 name="Discount"
+                value={EditformData.Discount}
                 onChange={handleonChange}
               />
             </div>
@@ -132,6 +144,7 @@ function EditInvent() {
                 type="date"
                 id="MfgDate"
                 name="MfgDate"
+                value={EditformData.MfgDate}
                 onChange={handleonChange}
               />
             </div>
@@ -142,6 +155,7 @@ function EditInvent() {
                 type="Date"
                 id="Expire"
                 name="Expire"
+                value={EditformData.Expire}
                 onChange={handleonChange}
               />
             </div>
@@ -152,6 +166,7 @@ function EditInvent() {
                 type="number"
                 id="Pack"
                 name="Pack"
+                value={EditformData.Pack}
                 onChange={handleonChange}
               />
             </div>
@@ -162,6 +177,7 @@ function EditInvent() {
                 type="Number"
                 id="MRP"
                 name="MRP"
+                value={EditformData.MRP}
                 onChange={handleonChange}
               />
             </div>
@@ -172,6 +188,7 @@ function EditInvent() {
                 type="Number"
                 id="Tax"
                 name="Tax"
+                value={EditformData.Tax}
                 onChange={handleonChange}
               />
             </div>
@@ -183,6 +200,7 @@ function EditInvent() {
                 id="amount"
                 placeholder="0.00"
                 name="amount"
+                value={EditformData.amount}
                 onChange={handleonChange}
               />
             </div>
