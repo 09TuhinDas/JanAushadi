@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import "../App.css";
 import axios from "axios";
 
+axios.defaults.baseURL = "http://localhost:8080/";
+
 function InventAdd() {
-  const users = {
+  const [formData, setFormData] = useState({
     DrugCode: "",
     ProductName: "",
     BatchNo: "",
@@ -15,25 +17,26 @@ function InventAdd() {
     MRP: "",
     Tax: "",
     amount: "",
-  };
-  const [user, setUser] = useState(users);
+  });
 
-  const inputHandler = (e) => {
-    const { name, value } = e.target;
-    setUser({
-      ...user,
-      [name]: value,
+  const handleonChange = (e) => {
+    const { value, name } = e.target;
+    setFormData((preve) => {
+      return {
+        ...preve,
+        [name]: value,
+      };
     });
   };
 
   const submitForm = async (e) => {
     e.preventDefault();
-    await axios
-      .post("http://localhost:5173/api/create", user)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => console.error(error));
+    const data = await axios.post("/create", formData);
+    console.log(data);
+    if (data.data.success) {
+      alert(data.data.message);
+      window.location.reload();
+    }
   };
 
   return (
@@ -55,7 +58,7 @@ function InventAdd() {
                 type="number"
                 id="DrugCode"
                 name="DrugCode"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[7px]">
@@ -65,7 +68,7 @@ function InventAdd() {
                 type="text"
                 id="ProductName"
                 name="ProductName"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -73,9 +76,9 @@ function InventAdd() {
               <input
                 className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px] "
                 type="Number"
-                id="Batchno"
-                name="Batchno"
-                onChange={inputHandler}
+                id="BatchNo"
+                name="BatchNo"
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -86,7 +89,7 @@ function InventAdd() {
                 id="Quantity"
                 placeholder="0"
                 name="Quantity"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -97,7 +100,7 @@ function InventAdd() {
                 id="Discount"
                 placeholder="0.00"
                 name="Discount"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
 
@@ -108,7 +111,7 @@ function InventAdd() {
                 type="date"
                 id="MfgDate"
                 name="MfgDate"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -118,7 +121,7 @@ function InventAdd() {
                 type="Date"
                 id="Expire"
                 name="Expire"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -128,7 +131,7 @@ function InventAdd() {
                 type="number"
                 id="Pack"
                 name="Pack"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -138,7 +141,7 @@ function InventAdd() {
                 type="Number"
                 id="MRP"
                 name="MRP"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -148,7 +151,7 @@ function InventAdd() {
                 type="Number"
                 id="Tax"
                 name="Tax"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px]">
@@ -159,15 +162,13 @@ function InventAdd() {
                 id="amount"
                 placeholder="0.00"
                 name="amount"
-                onChange={inputHandler}
+                onChange={handleonChange}
               />
             </div>
             <div className="mb-[20px] mr-[100px]" align="right">
-              <input
-                className="  rounded-[30.859px] bg-green-300 w-[190px] text-[50px]  active:border-white duration-300 active:text-white"
-                type="submit"
-                value="Submit"
-              />
+              <button className="  rounded-[30.859px] bg-green-300 w-[190px] text-[50px]  active:border-white duration-300 active:text-white">
+                Submit
+              </button>
             </div>
           </form>
         </div>

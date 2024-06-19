@@ -1,9 +1,49 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 import "../App.css";
-import InventAdd from "./InventAdd";
+import axios from "axios";
+
 import { Link } from "react-router-dom";
 
+axios.defaults.baseURL = "http://localhost:8080/";
+
 function Invent() {
+  const [formData, setFormData] = useState({
+    DrugCode: "",
+    ProductName: "",
+    BatchNo: "",
+    Quantity: "",
+    Discount: "",
+    MfgDate: "",
+    Expire: "",
+    Pack: "",
+    MRP: "",
+    Tax: "",
+    amount: "",
+  });
+
+  const [dataList, setDataList] = useState([]);
+
+  const getFetchData = async () => {
+    const data = await axios.get("/");
+    console.log(data);
+    if (data.data.success) {
+      setDataList(data.data.data);
+    }
+  };
+  useEffect(() => {
+    getFetchData();
+  }, []);
+
+  const handleDelete = async (id) => {
+    const data = await axios.delete("/delete/" + id);
+    if (data.data.success) {
+      getFetchData();
+      alert(data.data.message);
+    }
+  };
+
+  console.log(dataList);
+
   const [files, setFile] = useState(null);
 
   function handleUpload() {
@@ -48,7 +88,7 @@ function Invent() {
           </li>
         </button>
       </div>
-      <div className="overflow-x-auto overflow-y-auto mt-[70px] w-6/8 ml-[20px] bg-[white] border-shadow: 1px 1px 8px rgba(0, 0, 0, 0.065) p-[30px]">
+      <div className="overflow-x-auto overflow-y-auto mt-[70px] mb-[10px] w-6/8 ml-[20px] bg-[white] border-shadow: 1px 1px 8px rgba(0, 0, 0, 0.065) p-[30px]">
         <table
           className="border border-solid border-[black] w-full border-collapse"
           cellPadding={20}
@@ -93,37 +133,73 @@ function Invent() {
               <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Amount
               </th>
-              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
-                Action
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[17px]">
+                Delete
+              </th>
+              <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[17px]">
+                Edit
               </th>
             </tr>
           </thead>
           <tbody className="p-[10px] text-center">
-            <tr>
-              <td className="border border-solid border-[black] "></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="border border-solid border-[black]"></td>
-              <td className="">
-                <button className="border-0 px-2.5 py-2 rounded-[5px] bg-[red] outline:none text-[white]">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-                <Link
-                  className=" px-2.5 py-2.5 rounded-[5px] bg-[green] text-[white] my-0 mx-2.5"
-                  to={"/edit"}
-                >
-                  <i class="fa-solid fa-pen"></i>
-                </Link>
-              </td>
-            </tr>
+            {dataList.map((e) => {
+              return (
+                <tr>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.id}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.DrugCode}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.ProductName}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.BatchNo}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.Quantity}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.Pack}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.MRP}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.Tax}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.Discount}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.MfgDate}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse p-[10px]">
+                    {e.Expire}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse  p-[10px]">
+                    {e.amount}
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse  p-[10px]">
+                    <button
+                      className="border-0 px-2.5 py-1.5 p rounded-[5px] bg-[red] outline:none text-[white]"
+                      onClick={() => handleDelete(e._id)}
+                    >
+                      <i className="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                  <td className="border border-solid border-[black] border-collapse  p-[10px]">
+                    <Link
+                      className=" px-2.5 py-2.5 rounded-[5px] bg-[green] text-[white] my-0 mx-2.5"
+                      to={"/edit"}
+                    >
+                      <i className="fa-solid fa-pen"></i>
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
