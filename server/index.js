@@ -9,13 +9,13 @@ app.use(express.json())
 const PORT = process.env.PORT || 8080
 
 const schemaData = mongoose.Schema({
-    DrugCode: Number,
+    DrugCode: String,
     ProductName: String,
     BatchNo:Number,
     Quantity:Number,
     Discount:Number,
-    MfgDate:Date,
-    Expire:Date,
+    MfgDate:String,
+    Expire:String,
     Pack:Number,
     MRP:Number,
     Tax:Number,
@@ -72,7 +72,22 @@ app.delete("/delete/:id", async(req, res) => {
     res.send({success : 'true', message : "data deleted successfully", data : data})
 })
 
-mongoose.connect("mongodb://localhost:27017/medicine")
+
+
+// API Endpoint to get product name and batch no by drug code
+// Get product name by drug code
+app.get("/drug/:DrugCode", async (req, res) => {
+  try {
+    const drug = await userModel.findOne({ DrugCode: req.params.DrugCode });
+    if (!drug) return res.status(404).json({ message: 'Drug not found' });
+    res.json({ ProductName: drug.ProductName, BatchNo: drug.BatchNo });
+  } catch (error) {
+    console.error("Error fetching drug:", error);
+    res.status(500).json({ message: error.message });
+  }
+})
+
+mongoose.connect("mongodb://localhost:27017/medicine", )
 .then(() =>{
     console.log("connected to db")
     app.listen(PORT, () => {

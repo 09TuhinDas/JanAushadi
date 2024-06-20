@@ -55,7 +55,7 @@ function InventAdd() {
               <label htmlFor="DrugCode">Drug Code: </label>
               <input
                 className="ml-[5px] mb-[10px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[120px] "
-                type="number"
+                type="text"
                 id="DrugCode"
                 name="DrugCode"
                 onChange={handleonChange}

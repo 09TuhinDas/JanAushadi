@@ -1,8 +1,51 @@
-import react, { useEffect } from "react";
+import React from "react";
 import "../App.css";
-import { useTable } from "react-table";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function PCdetails() {
+  const [input, setInput] = useState("");
+  const [productName, setProductName] = useState("");
+  const [batchNo, setBatchNo] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log("fetchData called");
+      if (input.trim() !== "") {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/drug/${input}`
+          );
+          const data = response.data;
+
+          console.log("Server response:", data);
+
+          if (data) {
+            setProductName(data.ProductName);
+            setBatchNo(data.BatchNo);
+          } else {
+            setProductName("");
+            setBatchNo("");
+            setError("No matching products found");
+          }
+        } catch (err) {
+          setProductName("");
+          setBatchNo("");
+          setError(
+            err.response ? err.response.data.message : "Error fetching data"
+          );
+        }
+      }
+    };
+
+    fetchData();
+  }, [input]);
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  };
+
   return (
     <div class="Product-invoice">
       <div className="flex mt-[75px]">
@@ -17,22 +60,38 @@ function PCdetails() {
       </div>
       <div className="flex">
         <div class="details&invoice">
-          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[350px] w-[390px]">
-            <form className="mt-[20px] ml-[9px] text-[23px]" action="">
+          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[390px] w-[390px]">
+            <form className="mt-[20px] ml-[9px] text-[23px]">
               <div className="mb-[7px]">
-                Drug code/Product name:
+                <label htmlFor="DrugCode">Drug Code: </label>
                 <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[290px] "
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px] "
                   type="text"
-                  name="Product-Name"
+                  name="DrugCode"
+                  value={input}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="mb-[7px]">
+                <label htmlFor="ProductName">Product Name:</label>
+                <input
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[220px] "
+                  type="text"
+                  id="ProductName"
+                  name="ProductName"
+                  value={productName}
+                  readOnly
                 />
               </div>
               <div className="mb-[5px]">
-                Batch:
+                <label htmlFor="Batchno">Batch : </label>
                 <input
                   className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px] "
                   type="text"
-                  name="Batch-no"
+                  id="BatchNo"
+                  name="BatchNo"
+                  value={batchNo}
+                  readOnly
                 />
               </div>
               <div className="mb-[5px]">

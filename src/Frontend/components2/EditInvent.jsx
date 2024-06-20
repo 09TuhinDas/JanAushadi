@@ -83,7 +83,7 @@ function EditInvent() {
               <label htmlFor="DrugCode">Drug Code: </label>
               <input
                 className="ml-[5px] mb-[10px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[120px] "
-                type="number"
+                type="text"
                 id="DrugCode"
                 name="DrugCode"
                 value={EditformData.DrugCode}
@@ -206,7 +206,7 @@ function EditInvent() {
             </div>
             <div className="mb-[20px] mr-[100px]" align="right">
               <button className="  rounded-[30.859px] bg-green-300 w-[190px] text-[50px]  active:border-white duration-300 active:text-white">
-                Submit
+                Update
               </button>
             </div>
           </form>
