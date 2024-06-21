@@ -4,46 +4,44 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function PCdetails() {
-  const [input, setInput] = useState("");
-  const [productName, setProductName] = useState("");
-  const [batchNo, setBatchNo] = useState("");
-  const [error, setError] = useState("");
+  const [drugCode, setDrugCode] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [pack, setPack] = useState("");
+  const [batch, setBatch] = useState("");
+  const [Product, setProduct] = useState("");
+  const [mfg, setmfg] = useState("");
+  const [exp, setexp] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      console.log("fetchData called");
-      if (input.trim() !== "") {
-        try {
-          const response = await axios.get(
-            `http://localhost:8080/drug/${input}`
-          );
-          const data = response.data;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-          console.log("Server response:", data);
+    try {
+      // Assuming your backend API is running on http://localhost:5000
+      const response = await axios.post("http://localhost:8080/updateDrug", {
+        DrugCode: drugCode,
+        Quantity: quantity,
+        Pack: pack,
+        BatchNo: batch,
+        ProductName: Product,
+        MfgDate: mfg,
+        Expire: exp,
+      });
 
-          if (data) {
-            setProductName(data.ProductName);
-            setBatchNo(data.BatchNo);
-          } else {
-            setProductName("");
-            setBatchNo("");
-            setError("No matching products found");
-          }
-        } catch (err) {
-          setProductName("");
-          setBatchNo("");
-          setError(
-            err.response ? err.response.data.message : "Error fetching data"
-          );
-        }
+      console.log(response.data);
+
+      setDrugCode("");
+      setQuantity("");
+      setPack("");
+      // Assuming you want to log the response
+      // Optionally, you can show a success message or update state upon successful update
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setError("Drug not found. Please enter a valid drug code.");
+      } else {
+        setError("An error occurred while updating the drug.");
       }
-    };
-
-    fetchData();
-  }, [input]);
-
-  const handleInputChange = (e) => {
-    setInput(e.target.value);
+      console.error("Error updating drug:", error);
+    }
   };
 
   return (
@@ -60,53 +58,38 @@ function PCdetails() {
       </div>
       <div className="flex">
         <div class="details&invoice">
-          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[390px] w-[390px]">
-            <form className="mt-[20px] ml-[9px] text-[23px]">
+          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[330px] w-[390px]">
+            <form
+              className="mt-[20px] ml-[9px] text-[29px]"
+              onSubmit={handleSubmit}
+            >
               <div className="mb-[7px]">
                 <label htmlFor="DrugCode">Drug Code: </label>
                 <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px] "
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[130px] "
                   type="text"
                   name="DrugCode"
-                  value={input}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="mb-[7px]">
-                <label htmlFor="ProductName">Product Name:</label>
-                <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[220px] "
-                  type="text"
-                  id="ProductName"
-                  name="ProductName"
-                  value={productName}
-                  readOnly
-                />
-              </div>
-              <div className="mb-[5px]">
-                <label htmlFor="Batchno">Batch : </label>
-                <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px] "
-                  type="text"
-                  id="BatchNo"
-                  name="BatchNo"
-                  value={batchNo}
-                  readOnly
+                  value={drugCode}
+                  onChange={(e) => setDrugCode(e.target.value)}
+                  required
                 />
               </div>
               <div className="mb-[5px]">
                 Qty.:
                 <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[70px]"
-                  type="Decimal"
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[100px]"
+                  type="number"
                   placeholder="0"
                   name="Quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  required
                 />
               </div>
               <div className="mb-[5px]">
                 Disc.:
                 <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px]"
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[100px]"
                   type="Decimal"
                   placeholder="0.00"
                   name="Discount"
@@ -115,15 +98,18 @@ function PCdetails() {
               <div className="mb-[5px]">
                 Pack size:
                 <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px]"
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[100px]"
                   type="number"
                   name="Pack-size"
+                  value={pack}
+                  onChange={(e) => setPack(Number(e.target.value))}
+                  required
                 />
               </div>
               <div className="mb-[5px]">
                 Amount:
                 <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[100px] "
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[130px] "
                   type="number"
                   placeholder="0.00"
                   name="Amount"

@@ -128,11 +128,11 @@ function Invent() {
             </tr>
           </thead>
           <tbody className="p-[10px] text-center">
-            {dataList.map((e) => {
+            {dataList.map((e, index) => {
               return (
-                <tr>
+                <tr key={e.id}>
                   <td className="border border-solid border-[black] border-collapse p-[10px]">
-                    {e.id}
+                    {index + 1}
                   </td>
                   <td className="border border-solid border-[black] border-collapse p-[10px]">
                     {e.DrugCode}

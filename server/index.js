@@ -76,16 +76,47 @@ app.delete("/delete/:id", async(req, res) => {
 
 // API Endpoint to get product name and batch no by drug code
 // Get product name by drug code
-app.get("/drug/:DrugCode", async (req, res) => {
+app.post("/updateDrug", async (req, res) => {
   try {
-    const drug = await userModel.findOne({ DrugCode: req.params.DrugCode });
-    if (!drug) return res.status(404).json({ message: 'Drug not found' });
-    res.json({ ProductName: drug.ProductName, BatchNo: drug.BatchNo });
+    const { DrugCode, Quantity, Pack } = req.body;
+
+    if (!DrugCode || Quantity == null || Pack == null) {
+      return res.status(400).json({ message: 'Invalid input data' });
+    }
+
+    const drug = await userModel.findOne({ DrugCode });
+
+    if (!drug) {
+      return res.status(404).json({ message: 'Drug not found' });
+    }
+
+    if (drug.Quantity < Quantity || drug.Pack < Pack) {
+      return res.status(400).json({ message: 'Insufficient quantity or pack' });
+    }
+
+    // Assuming batchNo and ProductName are fields in your userModel schema
+    const batchNo = drug.BatchNo;
+    const ProductName = drug.ProductName;
+    const Mfg = drug.MfgDate;
+    const Expire = drug.Expire;
+
+    drug.Quantity -= Quantity;
+    drug.Pack -= Pack;
+
+    await drug.save();
+
+    res.json({
+      message: 'Quantity and pack updated successfully',
+      BatchNo: batchNo,
+      ProductName: ProductName,
+      MfgDate: Mfg,
+      Expire: Expire
+    });
   } catch (error) {
-    console.error("Error fetching drug:", error);
-    res.status(500).json({ message: error.message });
+    console.error("Error updating drug:", error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
-})
+});
 
 mongoose.connect("mongodb://localhost:27017/medicine", )
 .then(() =>{
