@@ -6,41 +6,67 @@ import axios from "axios";
 function PCdetails() {
   const [drugCode, setDrugCode] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [pack, setPack] = useState("");
-  const [batch, setBatch] = useState("");
-  const [Product, setProduct] = useState("");
-  const [mfg, setmfg] = useState("");
-  const [exp, setexp] = useState("");
+  const [drugInfo, setDrugInfo] = useState(null);
+  const [amount, setAmount] = useState(0);
+  const [discount, setDiscount] = useState(0);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      // Assuming your backend API is running on http://localhost:5000
-      const response = await axios.post("http://localhost:8080/updateDrug", {
-        DrugCode: drugCode,
-        Quantity: quantity,
-        Pack: pack,
-        BatchNo: batch,
-        ProductName: Product,
-        MfgDate: mfg,
-        Expire: exp,
-      });
-
-      console.log(response.data);
-
-      setDrugCode("");
-      setQuantity("");
-      setPack("");
-      // Assuming you want to log the response
-      // Optionally, you can show a success message or update state upon successful update
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        setError("Drug not found. Please enter a valid drug code.");
-      } else {
-        setError("An error occurred while updating the drug.");
+  const handleFetchDrugInfo = async (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/drug/${drugCode}`
+        );
+        setDrugInfo(response.data);
+        setAmount(0); // Reset amount on new drug fetch
+      } catch (error) {
+        console.error("Error fetching drug:", error);
+        setDrugInfo(null);
+        setAmount(0); // Reset amount if fetch fails
       }
-      console.error("Error updating drug:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (drugInfo && quantity) {
+      const quantityPerPack = Math.floor(drugInfo.Quantity / drugInfo.Pack);
+      const unitPrice = drugInfo.MRP / quantityPerPack;
+      let calculatedAmount = unitPrice * quantity;
+
+      if (discount) {
+        calculatedAmount -= (calculatedAmount * discount) / 100;
+      }
+
+      setAmount(calculatedAmount);
+    } else {
+      setAmount(0); // Set amount to 0 when quantity is empty
+    }
+  }, [quantity, drugInfo, discount]);
+
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value);
+    handleCalculateAmount();
+  };
+
+  const handleDiscountChange = (e) => {
+    setDiscount(e.target.value);
+  };
+
+  const handleSubmit = async () => {
+    if (drugInfo) {
+      try {
+        const response = await axios.put(
+          `http://localhost:8080/drug/${drugCode}`,
+          {
+            quantity: Number(quantity),
+          }
+        );
+        alert("Quantity and pack size updated successfully");
+        setDrugInfo(response.data); // Update the drugInfo with the latest data from the server
+      } catch (error) {
+        console.error("Error updating drug:", error);
+        alert("Failed to update quantity and pack size");
+      }
     }
   };
 
@@ -58,9 +84,9 @@ function PCdetails() {
       </div>
       <div className="flex">
         <div class="details&invoice">
-          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[330px] w-[390px]">
+          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[355px] w-[390px]">
             <form
-              className="mt-[20px] ml-[9px] text-[29px]"
+              className="mt-[20px] ml-[9px] text-[23px]"
               onSubmit={handleSubmit}
             >
               <div className="mb-[7px]">
@@ -71,7 +97,29 @@ function PCdetails() {
                   name="DrugCode"
                   value={drugCode}
                   onChange={(e) => setDrugCode(e.target.value)}
-                  required
+                  onKeyDown={handleFetchDrugInfo}
+                />
+              </div>
+              <div className="mb-[7px]">
+                <label htmlFor="ProductName">Product Name:</label>
+                <input
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[220px] "
+                  type="text"
+                  id="ProductName"
+                  name="ProductName"
+                  value={drugInfo ? drugInfo.ProductName : ""}
+                  readOnly
+                />
+              </div>
+              <div className="mb-[5px]">
+                <label htmlFor="BatchNo">Batch : </label>
+                <input
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px] "
+                  type="text"
+                  id="BatchNo"
+                  name="BatchNo"
+                  value={drugInfo ? drugInfo.BatchNo : ""}
+                  readOnly
                 />
               </div>
               <div className="mb-[5px]">
@@ -82,8 +130,7 @@ function PCdetails() {
                   placeholder="0"
                   name="Quantity"
                   value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  required
+                  onChange={handleQuantityChange}
                 />
               </div>
               <div className="mb-[5px]">
@@ -93,6 +140,8 @@ function PCdetails() {
                   type="Decimal"
                   placeholder="0.00"
                   name="Discount"
+                  value={discount}
+                  onChange={handleDiscountChange}
                 />
               </div>
               <div className="mb-[5px]">
@@ -101,9 +150,8 @@ function PCdetails() {
                   className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[100px]"
                   type="number"
                   name="Pack-size"
-                  value={pack}
-                  onChange={(e) => setPack(Number(e.target.value))}
-                  required
+                  value={quantity ? (drugInfo ? drugInfo.Pack : "") : 0}
+                  readOnly
                 />
               </div>
               <div className="mb-[5px]">
@@ -113,6 +161,8 @@ function PCdetails() {
                   type="number"
                   placeholder="0.00"
                   name="Amount"
+                  value={amount.toFixed(2)}
+                  readOnly
                 />
                 <input
                   className="ml-[270px] rounded-[30.859px] bg-green-300 w-[90px] text-[20px]  active:border-white duration-300 active:text-white"

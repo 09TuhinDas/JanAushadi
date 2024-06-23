@@ -102,10 +102,10 @@ function Invent() {
                 Pack
               </th>
               <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
-                Purchase Value
+                MRP.
               </th>
               <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
-                MRP.
+                Tax
               </th>
               <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Disc%

@@ -21,6 +21,23 @@ function InventAdd() {
 
   const handleonChange = (e) => {
     const { value, name } = e.target;
+
+    // Convert only if the input field is meant to hold numeric values
+    const numValue = ["Quantity", "Pack"].includes(name)
+      ? Number(value)
+      : value;
+    const currentPack = Number(formData.Pack);
+    const currentQuantity = Number(formData.Quantity);
+
+    if (name === "Pack" && numValue > currentQuantity) {
+      // Optionally, set an error state here to notify the user
+      alert("Pack size cannot be greater than Quantity");
+      return; // Prevent the update
+    } else if (name === "Quantity" && currentPack > numValue) {
+      // Optionally, set an error state here to notify the user
+      alert("Quantity cannot be less than Pack size");
+      return; // Prevent the update
+    }
     setFormData((preve) => {
       return {
         ...preve,

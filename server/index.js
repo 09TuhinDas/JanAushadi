@@ -9,7 +9,7 @@ app.use(express.json())
 const PORT = process.env.PORT || 8080
 
 const schemaData = mongoose.Schema({
-    DrugCode: String,
+    DrugCode: Number,
     ProductName: String,
     BatchNo:Number,
     Quantity:Number,
@@ -63,6 +63,52 @@ app.put("/update/:id", async (req, res) => {
     }
   });
 
+  app.get("/drug/:DrugCode", async (req, res) => {
+    try {
+      const drug = await userModel.findOne({ DrugCode: req.params.DrugCode });
+      if (!drug) {
+        res.status(404).json({ message: 'Drug not found' });
+      } else {
+        res.json({ ProductName: drug.ProductName, BatchNo: drug.BatchNo, Quantity: drug.Quantity, Discount: drug.Discount, Pack: drug.Pack, MRP: drug.MRP, amount: drug.amount});
+      }
+    } catch (error) {
+      console.error("Error fetching drug:", error);
+      res.status(500).json({ message: error.message });
+    }
+  })
+
+  app.put('/drug/:DrugCode', async (req, res) => {
+    try {
+        const { quantity } = req.body;
+        const medicine = await userModel.findOne({ DrugCode: req.params.DrugCode });
+        if (!medicine) {
+            return res.status(404).json({ message: 'Medicine not found' });
+        }
+
+        const quantityPerPack = Math.floor(medicine.Quantity / medicine.Pack);
+        if (quantity > quantityPerPack) {
+            return res.status(400).json({ message: 'Quantity exceeds available quantity per pack' });
+        }
+
+        const newQuantity = medicine.Quantity - quantity;
+        let newPackSize = medicine.Pack;
+
+        if (quantity === quantityPerPack) {
+            newPackSize -= 1;
+        }
+
+        if (newPackSize < 0) {
+            return res.status(400).json({ message: 'Quantity exceeds available pack size' });
+        }
+
+        medicine.Quantity = newQuantity;
+        medicine.Pack = newPackSize;
+        await medicine.save();
+        res.json(medicine);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 //delete data
 app.delete("/delete/:id", async(req, res) => {
