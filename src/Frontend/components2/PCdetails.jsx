@@ -9,7 +9,12 @@ function PCdetails() {
   const [drugInfo, setDrugInfo] = useState(null);
   const [amount, setAmount] = useState(0);
   const [discount, setDiscount] = useState(0);
+  const [tableData, setTableData] = useState([]);
+  const [drugInfoToContinue, setDrugInfoToContinue] = useState(null);
+  const [drugCodeToContinue, setDrugCodeToContinue] = useState("");
+  const [quantityToContinue, setQuantityToContinue] = useState("");
 
+  // Fetch drug information when user presses Enter on Drug Code input
   const handleFetchDrugInfo = async (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -17,7 +22,8 @@ function PCdetails() {
         const response = await axios.get(
           `http://localhost:8080/drug/${drugCode}`
         );
-        setDrugInfo(response.data);
+        console.log("Response from drug fetch:", response.data);
+        setDrugInfo(response.data); // Update drugInfo state
         setAmount(0); // Reset amount on new drug fetch
       } catch (error) {
         console.error("Error fetching drug:", error);
@@ -26,7 +32,7 @@ function PCdetails() {
       }
     }
   };
-
+  // Calculate amount based on quantity, drugInfo, and discount changes
   useEffect(() => {
     if (drugInfo && quantity) {
       const quantityPerPack = Math.floor(drugInfo.Quantity / drugInfo.Pack);
@@ -43,31 +49,90 @@ function PCdetails() {
     }
   }, [quantity, drugInfo, discount]);
 
+  // Handle change in quantity input
   const handleQuantityChange = (e) => {
-    setQuantity(e.target.value);
-    handleCalculateAmount();
+    setQuantity(e.target.value); // Update quantity state
   };
 
+  // Handle change in discount input
   const handleDiscountChange = (e) => {
     setDiscount(e.target.value);
   };
 
-  const handleSubmit = async () => {
+  // Handle form submission (adding to tableData)
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (drugInfo) {
+      const newEntry = {
+        drugCode,
+        productName: drugInfo.ProductName,
+        batchNo: drugInfo.BatchNo,
+        quantity,
+        packSize: drugInfo.Pack,
+        mrp: drugInfo.MRP,
+        discount,
+        mfgDate: drugInfo.MfgDate,
+        expire: drugInfo.Expire,
+        amount: amount.toFixed(2),
+      };
+      setTableData([...tableData, newEntry]);
+
+      // Reset form fields
+      setDrugCode("");
+      setQuantity("");
+      setDrugInfo(null);
+      setAmount(0);
+      setDiscount(0);
+
+      setDrugInfoToContinue(drugInfo);
+      setDrugCodeToContinue(drugCode);
+      setQuantityToContinue(quantity);
+    }
+  };
+  // Handle continue button click (updating drug quantity and pack size)
+
+  const handleContinue = async () => {
+    console.log("drugInfoToContinue:", drugInfoToContinue);
+    console.log("drugCodeToContinue:", drugCodeToContinue);
+    console.log("quantityToContinue:", quantityToContinue);
+
+    if (drugInfoToContinue && drugCodeToContinue && quantityToContinue) {
       try {
         const response = await axios.put(
-          `http://localhost:8080/drug/${drugCode}`,
+          `http://localhost:8080/drug/${drugCodeToContinue}`,
           {
-            quantity: Number(quantity),
+            quantity: Number(quantityToContinue),
+            packSize: drugInfoToContinue.Pack,
           }
         );
+        console.log("Response from PUT request:", response.data);
         alert("Quantity and pack size updated successfully");
-        setDrugInfo(response.data); // Update the drugInfo with the latest data from the server
+        // Clear drug details after successful update
+        setDrugCode("");
+        setQuantity("");
+        setDrugInfo(null);
+        setAmount(0);
+        setDiscount(0);
+
+        setTableData([]);
+
+        setDrugInfoToContinue(null); // Clear continue state after successful update
+        setDrugCodeToContinue("");
+        setQuantityToContinue("");
       } catch (error) {
         console.error("Error updating drug:", error);
         alert("Failed to update quantity and pack size");
       }
+    } else {
+      alert("No drug information available to update");
     }
+  };
+
+  const handleDeleteRow = (indexToDelete) => {
+    const updatedTableData = tableData.filter(
+      (_, index) => index !== indexToDelete
+    );
+    setTableData(updatedTableData);
   };
 
   return (
@@ -234,8 +299,13 @@ function PCdetails() {
         </div>
         <div className="overflow-x-auto">
           <div className="mt-[9px] ml-[9px] w-auto mr-[9px] h-auto">
-            <table>
-              <thead className="flex">
+            <table
+              className="border border-solid border-[black] w-full border-collapse"
+              cellPadding={10}
+              cellSpacing={0}
+              border={1}
+            >
+              <thead>
                 <tr>
                   <th className="ml-[9px] gap-0 px-1 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
                     S.No
@@ -270,27 +340,70 @@ function PCdetails() {
                   <th className="gap-0 px-3 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
                     Amount
                   </th>
+                  <th className="gap-0 px-3 text-[21px] font-bold text-center text-black  bg-zinc-300 border-x-2   bg-white border-t border-b border-black  text-center">
+                    Delete
+                  </th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody className="p-[10px] text-center">
+                {tableData.map((entry, index) => (
+                  <tr key={index}>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {index + 1}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.drugCode}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.productName}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.batchNo}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.quantity}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.packSize}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.mrp}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.discount}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.mfgDate}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.expire}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse p-[10px]">
+                      {entry.amount}
+                    </td>
+                    <td className="border border-solid border-[black] border-collapse  p-[10px]">
+                      <button
+                        className="border-0 px-2.5 py-1.5 p rounded-[5px] bg-[red] outline:none text-[white]"
+                        onClick={() => handleDeleteRow(index)}
+                      >
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <div className="ml-[405px] mb-[9px] mr-[9px] h-[65px]  flex gap-5 self-end  pr-7 pl-20 mt-3 text-3xl text-center text-black whitespace-nowrap bg-white border-2 border-black border-solid ">
-        <div className="flex flex-col  ">
-          <button className="mt-[5px] shadow-sm bg-zinc-300 bg-opacity-80 rounded-[30.859px] h-[50px] w-[200px] hover:bg-blue-300 active:border-white duration-300 active:text-white">
-            <li className="list-none" href="/">
-              Clear
-            </li>
-          </button>
-        </div>
-        <div className="flex flex-col ">
-          <button className="mt-[5px] shadow-sm bg-zinc-300 bg-opacity-80 rounded-[30.859px] h-[50px] w-[200px] hover:bg-blue-300 active:border-white duration-300 active:text-white">
-            <li className="list-none" href="/">
-              Continue
-            </li>
+      <div className="ml-[405px] mb-[9px] mr-[9px] h-[65px] flex gap-5 self-end pr-7 pl-20 mt-3 text-3xl text-center text-black whitespace-nowrap bg-white border-2 border-black border-solid">
+        <div className="flex flex-col">
+          <button
+            className="mt-[5px] shadow-sm bg-zinc-300 bg-opacity-80 rounded-[30.859px] h-[50px] w-[200px] hover:bg-blue-300 active:border-white duration-300 active:text-white"
+            onClick={handleContinue}
+          >
+            Continue
           </button>
         </div>
       </div>

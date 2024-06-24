@@ -69,7 +69,7 @@ app.put("/update/:id", async (req, res) => {
       if (!drug) {
         res.status(404).json({ message: 'Drug not found' });
       } else {
-        res.json({ ProductName: drug.ProductName, BatchNo: drug.BatchNo, Quantity: drug.Quantity, Discount: drug.Discount, Pack: drug.Pack, MRP: drug.MRP, amount: drug.amount});
+        res.json({ ProductName: drug.ProductName, BatchNo: drug.BatchNo, Quantity: drug.Quantity, Discount: drug.Discount, Pack: drug.Pack, MRP: drug.MRP, amount: drug.amount, MfgDate: drug.MfgDate, Expire: drug.Expire});
       }
     } catch (error) {
       console.error("Error fetching drug:", error);
