@@ -27,23 +27,19 @@ const schemaData = mongoose.Schema({
 
 // Invoice schema
 const invoiceSchema = mongoose.Schema({
-  invoiceNumber: { type: Number, required: true, unique: true },
-  billedItems: [{
+    invoiceNumber: { type: Number, required: true, unique: true },
+    billedItems: [{
       DrugCode: Number,
       ProductName: String,
       BatchNo: Number,
       Quantity: Number,
       Discount: Number,
       MfgDate: String,
-      Expire: String,
       Pack: Number,
       MRP: Number,
-      Tax: Number,
       amount: Number
-  }]
-}, {
-  timestamps: true
-});
+    }],
+  }, { timestamps: true });
 // Medicine model
 const userModel = mongoose.model("User", schemaData);
 
@@ -218,12 +214,14 @@ app.post("/save-invoice", async (req, res) => {
   
       // Create an array of objects with the required fields
       const billedItemsArray = billedItems.map((item) => ({
-        productName: item.productName,
-        quantity: item.quantity,
-        mfgDate: item.mfgDate,
-        packSize: item.packSize,
-        expire: item.expire,
-        batchNo: item.batchNo,
+        DrugCode: item.DrugCode,
+        ProductName: item.ProductName,
+        BatchNo: item.BatchNo,
+        Quantity: item.Quantity,
+        Discount: item.Discount,
+        MfgDate: item.MfgDate,
+        Pack: item.Pack,
+        MRP: item.MRP,
         amount: item.amount,
       }));
   

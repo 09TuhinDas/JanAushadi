@@ -121,20 +121,19 @@ function PCdetails() {
         amount: amount.toFixed(2),
       };
       setTableData([...tableData, newEntry]);
-
       // Reset form fields
       setDrugCode("");
       setQuantity("");
       setDrugInfo(null);
       setAmount(0);
       setDiscount(0);
-
       // Set continue state
       setDrugInfoToContinue(drugInfo);
       setDrugCodeToContinue(drugCode);
       setQuantityToContinue(quantity);
     }
   };
+
   // Handle continue button click (updating drug quantity and pack size)
 
   const handleContinue = async () => {
@@ -147,11 +146,15 @@ function PCdetails() {
 
         // Step 2: Prepare data for invoice
         const billedItems = tableData.map((entry) => ({
-          DrugCode: entry.DrugCode,
-          Quantity: entry.Quantity,
-          Pack: entry.Pack,
-          MRP: entry.MRP,
-          Discount: entry.Discount,
+          DrugCode: entry.drugCode,
+          ProductName: entry.productName,
+          BatchNo: entry.batchNo,
+          Quantity: entry.quantity,
+          Pack: entry.packSize,
+          MRP: entry.mrp,
+          Discount: entry.discount,
+          MfgDate: entry.mfgDate,
+          Expire: entry.expire,
           amount: entry.amount,
         }));
 
