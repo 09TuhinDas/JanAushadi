@@ -198,6 +198,7 @@ function PCdetails() {
           alert("An unexpected error occurred. Please try again later.");
         }
       }
+      window.location.href = "/";
     }
   };
   const handleDeleteRow = (indexToDelete) => {
