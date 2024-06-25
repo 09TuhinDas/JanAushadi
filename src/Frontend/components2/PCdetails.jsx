@@ -13,6 +13,51 @@ function PCdetails() {
   const [drugInfoToContinue, setDrugInfoToContinue] = useState(null);
   const [drugCodeToContinue, setDrugCodeToContinue] = useState("");
   const [quantityToContinue, setQuantityToContinue] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState(0);
+  const [latestInvoice, setLatestInvoice] = useState(null);
+
+  useEffect(() => {
+    const fetchLatestInvoice = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/latest-invoice"
+        );
+        setLatestInvoice(response.data.invoiceNumber);
+      } catch (error) {
+        console.error("Error fetching latest invoice:", error);
+      }
+    };
+
+    fetchLatestInvoice();
+  }, []);
+
+  // Fetch next invoice number on component mount
+  useEffect(() => {
+    const fetchLatestInvoice = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/latest-invoice"
+        );
+        setLatestInvoice(response.data.invoiceNumber);
+      } catch (error) {
+        console.error("Error fetching latest invoice:", error);
+      }
+    };
+
+    const fetchNextInvoiceNumber = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/next-invoice-number"
+        );
+        setInvoiceNumber(response.data.nextInvoiceNumber);
+      } catch (error) {
+        console.error("Error fetching next invoice number:", error);
+      }
+    };
+
+    fetchLatestInvoice();
+    fetchNextInvoiceNumber();
+  }, []);
 
   // Fetch drug information when user presses Enter on Drug Code input
   const handleFetchDrugInfo = async (e) => {
@@ -84,6 +129,7 @@ function PCdetails() {
       setAmount(0);
       setDiscount(0);
 
+      // Set continue state
       setDrugInfoToContinue(drugInfo);
       setDrugCodeToContinue(drugCode);
       setQuantityToContinue(quantity);
@@ -92,42 +138,65 @@ function PCdetails() {
   // Handle continue button click (updating drug quantity and pack size)
 
   const handleContinue = async () => {
-    console.log("drugInfoToContinue:", drugInfoToContinue);
-    console.log("drugCodeToContinue:", drugCodeToContinue);
-    console.log("quantityToContinue:", quantityToContinue);
-
     if (drugInfoToContinue && drugCodeToContinue && quantityToContinue) {
       try {
-        const response = await axios.put(
+        // Step 1: Generate invoice number
+        const {
+          data: { nextInvoiceNumber: invoiceNumber },
+        } = await axios.get("http://localhost:8080/next-invoice-number");
+
+        // Step 2: Prepare data for invoice
+        const billedItems = tableData.map((entry) => ({
+          DrugCode: entry.DrugCode,
+          Quantity: entry.Quantity,
+          Pack: entry.Pack,
+          MRP: entry.MRP,
+          Discount: entry.Discount,
+          amount: entry.amount,
+        }));
+
+        console.log("Data being sent to API:", { invoiceNumber, billedItems });
+
+        // Step 3: Save invoice
+        const { data: saveInvoiceResponse } = await axios.post(
+          "http://localhost:8080/save-invoice",
+          { invoiceNumber, billedItems }
+        );
+        console.log("Response from saving invoice:", saveInvoiceResponse);
+        alert("Invoice saved successfully");
+
+        // Step 4: Update drug details
+        const { data: updateDrugResponse } = await axios.put(
           `http://localhost:8080/drug/${drugCodeToContinue}`,
           {
             quantity: Number(quantityToContinue),
             packSize: drugInfoToContinue.Pack,
           }
         );
-        console.log("Response from PUT request:", response.data);
+        console.log("Response from updating drug:", updateDrugResponse);
         alert("Quantity and pack size updated successfully");
-        // Clear drug details after successful update
+
+        // Clear state
         setDrugCode("");
         setQuantity("");
         setDrugInfo(null);
         setAmount(0);
         setDiscount(0);
-
         setTableData([]);
-
-        setDrugInfoToContinue(null); // Clear continue state after successful update
+        setDrugInfoToContinue(null);
         setDrugCodeToContinue("");
         setQuantityToContinue("");
       } catch (error) {
-        console.error("Error updating drug:", error);
-        alert("Failed to update quantity and pack size");
+        if (error.response && error.response.status === 500) {
+          console.error("Internal Server Error:", error.response.data);
+          alert("Failed to handle continue process. Please try again later.");
+        } else {
+          console.error("Error handling continue:", error);
+          alert("An unexpected error occurred. Please try again later.");
+        }
       }
-    } else {
-      alert("No drug information available to update");
     }
   };
-
   const handleDeleteRow = (indexToDelete) => {
     const updatedTableData = tableData.filter(
       (_, index) => index !== indexToDelete
@@ -247,7 +316,8 @@ function PCdetails() {
                 <input
                   className="ml-[15px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[160px]"
                   type="number"
-                  name="Invoice-No"
+                  value={invoiceNumber}
+                  readOnly
                 />
               </div>
               <div className="mb-[15px]">
