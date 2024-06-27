@@ -2,8 +2,11 @@ import React from "react";
 import "../App.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function PCdetails() {
+  const navigate = useNavigate();
+
   const [drugCode, setDrugCode] = useState("");
   const [quantity, setQuantity] = useState("");
   const [drugInfo, setDrugInfo] = useState(null);
@@ -160,13 +163,15 @@ function PCdetails() {
 
         console.log("Data being sent to API:", { invoiceNumber, billedItems });
 
-        // Step 3: Save invoice
+        // Step 3: Save invoice data to API
         const { data: saveInvoiceResponse } = await axios.post(
           "http://localhost:8080/save-invoice",
-          { invoiceNumber, billedItems }
+          {
+            invoiceNumber,
+            billedItems,
+          }
         );
         console.log("Response from saving invoice:", saveInvoiceResponse);
-        alert("Invoice saved successfully");
 
         // Step 4: Update drug details
         const { data: updateDrugResponse } = await axios.put(
@@ -189,6 +194,9 @@ function PCdetails() {
         setDrugInfoToContinue(null);
         setDrugCodeToContinue("");
         setQuantityToContinue("");
+
+        // Redirect to invoice page
+        navigate(`/Invoice/${invoiceNumber}`);
       } catch (error) {
         if (error.response && error.response.status === 500) {
           console.error("Internal Server Error:", error.response.data);
@@ -198,7 +206,6 @@ function PCdetails() {
           alert("An unexpected error occurred. Please try again later.");
         }
       }
-      window.location.href = "/";
     }
   };
   const handleDeleteRow = (indexToDelete) => {

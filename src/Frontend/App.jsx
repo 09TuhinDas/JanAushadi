@@ -9,6 +9,7 @@ import ScrollToTop from "./ScrolltoTop";
 import Inventory from "./pages/Inventory";
 import InventAdd from "./components2/InventAdd";
 import EditInvent from "./components2/EditInvent";
+import Invoice from "./components2/Invoice";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/InventAdd" element={<InventAdd />} />
         <Route path="/EditInvent/:id" element={<EditInvent />} />
+        <Route path="/Invoice/:id" element={<Invoice />} />
       </Routes>
     </Router>
   );
