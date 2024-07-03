@@ -27,7 +27,7 @@ function Movingitms() {
           </div>
           <div className="flex gap-5 px-3 py-5 mx-5 mt-2 text-3xl text-black bg-white border-0 border-black border-solid  ">
             <div className="flex-auto">Product Name</div>
-            <div className="flex-auto">Company</div>
+            <div>Company</div>
             <div>Qty Sold</div>
             <div>Stock</div>
           </div>
