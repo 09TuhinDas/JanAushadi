@@ -4,7 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 
 function Navbar() {
   return (
-    <nav className="fixed w-full top-0 left-0 overflow-x-hidden ">
+    <nav className="fixed w-full top-0 left-0  ">
       <div className="self-stretch h-[30px] bg-blue-800"></div>
       <nav className="items-container">
         <ul className="list-none bg-zinc-300 p-[5px] m-0 border-solid border border-[rgba(0,_0,_0,_1)] flex overflow-hidden ">

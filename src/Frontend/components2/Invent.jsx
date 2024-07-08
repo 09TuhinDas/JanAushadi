@@ -108,7 +108,7 @@ function Invent() {
                 Tax
               </th>
               <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
-                Disc%
+                Hsn Code
               </th>
               <th className="border border-solid border-[black] border-collapse bg-zinc-300 p-[10px]">
                 Mfg. Date

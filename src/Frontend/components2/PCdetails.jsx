@@ -139,6 +139,7 @@ function PCdetails() {
 
   // Handle continue button click (updating drug quantity and pack size)
 
+  // Handle continue button click (updating drug quantity and pack size)
   const handleContinue = async () => {
     if (drugInfoToContinue && drugCodeToContinue && quantityToContinue) {
       try {
@@ -161,15 +162,19 @@ function PCdetails() {
           amount: entry.amount,
         }));
 
-        console.log("Data being sent to API:", { invoiceNumber, billedItems });
+        const invoiceData = {
+          // Define invoiceData with required fields
+          invoiceNumber,
+          billedItems,
+          netAmount: calculateTotalAmount(),
+        };
+
+        console.log("Data being sent to API:", invoiceData);
 
         // Step 3: Save invoice data to API
         const { data: saveInvoiceResponse } = await axios.post(
           "http://localhost:8080/save-invoice",
-          {
-            invoiceNumber,
-            billedItems,
-          }
+          invoiceData // Pass invoiceData to the API call
         );
         console.log("Response from saving invoice:", saveInvoiceResponse);
 
@@ -206,13 +211,24 @@ function PCdetails() {
           alert("An unexpected error occurred. Please try again later.");
         }
       }
+    } else {
+      alert("Please fill in all required fields before continuing.");
     }
   };
+
   const handleDeleteRow = (indexToDelete) => {
     const updatedTableData = tableData.filter(
       (_, index) => index !== indexToDelete
     );
     setTableData(updatedTableData);
+  };
+
+  const calculateTotalAmount = () => {
+    let total = 0;
+    tableData.forEach((entry) => {
+      total += parseFloat(entry.amount);
+    });
+    return total.toFixed(2);
   };
 
   return (
@@ -479,13 +495,23 @@ function PCdetails() {
       </div>
 
       <div className="ml-[405px] mb-[9px] mr-[9px] h-[65px] flex gap-5 self-end pr-7 pl-20 mt-3 text-3xl text-center text-black whitespace-nowrap bg-white border-2 border-black border-solid">
-        <div className="flex flex-col">
+        <div className="flex ">
           <button
             className="mt-[5px] shadow-sm bg-zinc-300 bg-opacity-80 rounded-[30.859px] h-[50px] w-[200px] hover:bg-blue-300 active:border-white duration-300 active:text-white"
             onClick={handleContinue}
           >
             Continue
           </button>
+          <div className="font-bold ml-[330px] mt-[10px] text-center text-4xl">
+            Net Amount :
+            <input
+              type="number"
+              placeholder="0.00"
+              className="ml-[10px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[160px]"
+              value={calculateTotalAmount()}
+              readOnly
+            />
+          </div>
         </div>
       </div>
     </div>

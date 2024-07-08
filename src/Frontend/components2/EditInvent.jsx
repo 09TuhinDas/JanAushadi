@@ -125,7 +125,7 @@ function EditInvent() {
               />
             </div>
             <div className="mb-[20px]">
-              <label htmlFor="Discount">Discount: </label>
+              <label htmlFor="Discount">HSN Code: </label>
               <input
                 className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px]"
                 type="number"

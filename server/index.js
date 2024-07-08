@@ -20,7 +20,7 @@ const schemaData = mongoose.Schema({
     Pack: Number,
     MRP: Number,
     Tax: Number,
-    amount: Number
+    amount: Number,
 }, {
     timestamps: true
 });
@@ -39,6 +39,7 @@ const invoiceSchema = mongoose.Schema({
       MRP: Number,
       amount: Number
     }],
+    netAmount: { type: Number, required: true }, // New field for net amount
   }, { timestamps: true });
 // Medicine model
 const userModel = mongoose.model("User", schemaData);
@@ -208,37 +209,47 @@ app.get('/next-invoice-number', async (req, res) => {
 });
 
 // Save a new invoice number and billed items
+// Save a new invoice number and billed items
 app.post("/save-invoice", async (req, res) => {
     try {
-      const { invoiceNumber, billedItems } = req.body;
-  
-      // Create an array of objects with the required fields
-      const billedItemsArray = billedItems.map((item) => ({
-        DrugCode: item.DrugCode,
-        ProductName: item.ProductName,
-        BatchNo: item.BatchNo,
-        Quantity: item.Quantity,
-        Discount: item.Discount,
-        MfgDate: item.MfgDate,
-        Pack: item.Pack,
-        MRP: item.MRP,
-        amount: item.amount,
-      }));
-  
-      // Save invoice and items to database
-      const newInvoice = new invoiceModel({
-        invoiceNumber,
-        billedItems: billedItemsArray,
-      });
-  
-      await newInvoice.save();
-  
-      res.status(200).json({ message: "Invoice saved successfully" });
+        const { invoiceNumber, billedItems, netAmount } = req.body;
+
+        // Validate required fields
+        if (!invoiceNumber || !billedItems || billedItems.length === 0 || !netAmount) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        // Additional validation logic as needed...
+
+        // Create an array of objects with the required fields
+        const billedItemsArray = billedItems.map((item) => ({
+            DrugCode: item.DrugCode,
+            ProductName: item.ProductName,
+            BatchNo: item.BatchNo,
+            Quantity: item.Quantity,
+            Discount: item.Discount,
+            MfgDate: item.MfgDate,
+            Pack: item.Pack,
+            MRP: item.MRP,
+            amount: item.amount,
+        }));
+
+        // Save invoice and items to database
+        const newInvoice = new invoiceModel({
+            invoiceNumber,
+            billedItems: billedItemsArray,
+            netAmount,
+        });
+
+        await newInvoice.save();
+
+        res.status(200).json({ message: "Invoice saved successfully" });
     } catch (error) {
-      console.error("Error saving invoice:", error);
-      res.status(500).json({ message: "Failed to save invoice" });
+        console.error("Error saving invoice:", error);
+        res.status(500).json({ message: "Failed to save invoice" });
     }
-  });
+});
+
 // Fetch an invoice by its number
 app.get('/invoice/:invoiceNumber', async (req, res) => {
   try {
