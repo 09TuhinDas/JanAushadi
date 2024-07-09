@@ -59,47 +59,55 @@ function Invoice() {
     <div
       className="invoice"
       ref={componentRef}
-      style={{ width: "210mm", margin: "0 auto" }}
+      style={{
+        width: "209mm",
+        height: "297mm",
+        margin: "0 auto",
+        padding: "20mm",
+        fontSize: "12pt",
+      }}
     >
       <div className="mt-[90px]">
-        <div className="pt-0.5  pb-6 pl-4 w-full bg-white border-t border-b border-black border-solid border-x max-md:max-w-full">
-          <div className="flex gap-5 max-md:flex-col max-md:gap-0 max-md:w-full">
-            <div className="flex flex-col w-1/5 max-md:ml-0 max-md:w-full">
-              <img
-                loading="lazy"
-                srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=100 100w, https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=200 200w, https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=400 400w, https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=800 800w, https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=1200 1200w, https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=1600 1600w, https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=2000 2000w, https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&"
-                className="shrink-0 aspect-[0.79] w-[70px] h-auto max-md:mt-10"
-              />
-            </div>
-            <div className="flex flex-col ml-5 w-[64%] max-md:ml-0 max-md:w-full">
-              <div className="flex flex-col grow items-center mt-1 text-center text-black max-md:mt-10">
-                <div className="text-xl font-extrabold">
-                  Jan Aushadhi Kendra
-                </div>
-                <div className="self-stretch mt-2 text-xs font-light">
-                  Ground Floor, 55A Shyambazar Street Kolkata -700004
-                  <br />
-                  GST No. : 19BSFPB9635LIZA , DL
-                  <br />
-                  No:WBKOLBIOR704855,WBKOLNBOR704855, Contact
-                  <br />
-                  No:9432784808,9903464035,990346035, Email ID:
-                  <br />
-                  janaushadhikendrashyambazar@gmail.com
-                </div>
-                <div className="mt-3.5 text-base font-semibold">
-                  GST Invoice
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col ml-5 w-[17%] max-md:ml-0 max-md:w-full">
-              <div className="flex flex-col text-base text-center text-black whitespace-nowrap max-md:mt-10">
+        <div className=" bg-white border-t-2 border-b-2 border-black border-solid border-x-2 max-w-[595px] min-h-[146px] ">
+          <div className="flex flex-row">
+            <div className="flex gap-5 max-md:flex-col max-md:gap-0 max-md:w-full">
+              <div className="flex items-center">
                 <img
                   loading="lazy"
-                  srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=100 100w, https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=200 200w, https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=400 400w, https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=800 800w, https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=1200 1200w, https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=1600 1600w, https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=2000 2000w, https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&"
-                  className="self-center w-[70px] h-auto aspect-[2.44]"
+                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/7d8f359ab37350a959a0a0dcb5ce9b5df3c45a13cbcbb00ac48fa9e78afed027?apiKey=150ca4726f0b413090f132e093d2a392&width=100"
+                  className="shrink-0 w-[40px] ml-[10px] -mt-[60px] h-auto "
+                  alt="Logo"
                 />
-                <div className="mt-3 ml-7 text-[15px]">ORIGINAL</div>
+                <div className="flex">
+                  <div className="flex flex-col items-center ml-40">
+                    <div className="text-[10px] text-center font-extrabold">
+                      Jan Aushadhi Kendra
+                    </div>
+                    <div className="self-stretch text-[7px] font-light">
+                      Ground Floor, 55A Shyambazar Street Kolkata -700004
+                      <br />
+                      GST No. : 19BSFPB9635LIZA , DL
+                      <br />
+                      No:WBKOLBIOR704855,WBKOLNBOR704855, Contact
+                      <br />
+                      No:9432784808,9903464035,990346035, Email ID:
+                      <br />
+                      janaushadhikendrashyambazar@gmail.com
+                    </div>
+                    <div className="mt-3 text-[10px] text-center font-semibold">
+                      GST Invoice
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col ml-40">
+                  <img
+                    loading="lazy"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/db2494aa43897811dd37f15df734a644a219c47f7feb8c06e0c24bfcc13748bc?apiKey=150ca4726f0b413090f132e093d2a392&width=100"
+                    className="self-center w-[40px] -mt-[50px] h-auto"
+                    alt="Original Mark"
+                  />
+                  <div className="mt-3 text-[9px] ml-3">ORIGINAL</div>
+                </div>
               </div>
             </div>
           </div>
@@ -107,29 +115,29 @@ function Invoice() {
       </div>
       <div className="flex">
         <div className="patient details">
-          <div className="mt-1  text-sm font-semibold text-center text-black">
-            <div className="mb-[4px]">
+          <div className="mt-1  text-[9px] font-semibold text-center text-black">
+            <div className="mb-[7px]">
               Patient Name :
               <input
-                className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[180px] "
+                className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px] "
                 type="text"
                 placeholder="Name"
                 name="Patient-Name"
               />
             </div>
-            <div className="mb-[4px]">
+            <div className="mb-[7px]">
               Patient Mob. :
               <input
-                className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[180px] "
+                className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px] "
                 placeholder="Phone Number"
                 type="number"
                 name="mobile-number"
               />
             </div>
-            <div className="mb-[4px]">
-              Doctors Name :
+            <div className="mb-[7px]">
+              Doctor Name :
               <input
-                className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[180px]"
+                className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[90px]"
                 type="text"
                 placeholder="Doc. Name"
                 name="Doc.-Name"
@@ -139,11 +147,11 @@ function Invoice() {
         </div>
         <div className="invoice-details">
           <div className=" ml-[310px]  flex-col">
-            <div className=" items-center space-x-4 text-sm font-semibold text-black">
-              <div className="ml-[15px] mb-[4px]">
+            <div className=" items-center space-x-4 text-[9px] font-semibold text-black">
+              <div className="ml-[15px] mb-[7px]">
                 <span>Invoice No. :</span> {invoiceNumber}
               </div>
-              <div className="mb-[4px]">
+              <div className="mb-[7px]">
                 <span>Date :</span>
                 <input
                   type="date"
@@ -160,10 +168,10 @@ function Invoice() {
           </div>
         </div>
       </div>
-      <div className="border-t-[black] border-t border-solid" />
+
       <table
-        className="border border-solid border-[black] w-full border-collapse"
-        cellPadding={10}
+        className="border border-solid border-[black]  border-collapse max-w-[575px]"
+        cellPadding={1}
         cellSpacing={0}
         border={1}
       >
@@ -198,22 +206,22 @@ function Invoice() {
             </th>
           </tr>
         </thead>
-        <tbody className="p-[10px] text-center text-sm">
+        <tbody className="p-[7px] text-center text-sm">
           {tableData.map((item, index) => (
             <tr key={index}>
-              <td className="border border-solid border-[black] border-collapse p-[10px]">
+              <td className="border border-solid border-[black] border-collapse p-[7px]">
                 {index + 1}
               </td>
-              <td className="border border-solid border-[black] border-collapse p-[10px]">
+              <td className="border border-solid border-[black] border-collapse p-[7px]">
                 {item.ProductName}
               </td>
-              <td className="border border-solid border-[black] border-collapse p-[10px]">
+              <td className="border border-solid border-[black] border-collapse p-[7px]">
                 {item.hsnCode}
               </td>
-              <td className="border border-solid border-[black] border-collapse p-[10px]">
+              <td className="border border-solid border-[black] border-collapse p-[7px]">
                 {item.BatchNo}
               </td>
-              <td className="border border-solid border-[black] border-collapse p-[10px]">
+              <td className="border border-solid border-[black] border-collapse p-[7px]">
                 {item.Quantity}
               </td>
 
@@ -233,28 +241,29 @@ function Invoice() {
       <div className="mt-[30px]   text-xl font-bold">
         <span>Net Amount: ₹</span> {netAmount}
       </div>
-
-      <div className="flex mt-[150px]  mb-[10px]">
-        <div className=" px-5 max-w-full text-black w-[232px]">
-          <div className="self-start text-sm font-medium underline">
-            Terms & Conditions :
+      <div className="bg-white border-t-2 border-b-2 border-black border-solid border-x-2  ">
+        <div className="flex  ">
+          <div className=" px-5 max-w-full text-black w-[232px]">
+            <div className="self-start text-sm font-medium underline">
+              Terms & Conditions :
+            </div>
+            <div className=" text-sm font-extralight">
+              &nbsp;Subject to Kolkata Jurisdiction.
+              <br /> ******GET WELL SOON******
+            </div>
           </div>
-          <div className="mt-3.5 text-sm font-extralight">
-            &nbsp;Subject to Kolkata Jurisdiction.
-            <br /> ******GET WELL SOON******
-          </div>
-        </div>
-        <div className=" ml-[350px]">
-          <div className="flex flex-col pl-16  text-xs font-extralight ">
-            <div className="self-end">For, Jan Aushadhi Kendra</div>
-            <div className="self-end mt-5 max-md:mt-10">Pharmacist Sign</div>
+          <div className=" ml-[350px]">
+            <div className="flex flex-col pl-16  text-xs font-extralight ">
+              <div className="self-end">For, Jan Aushadhi Kendra</div>
+              <div className="self-end mt-5 max-md:mt-10">Pharmacist Sign</div>
+            </div>
           </div>
         </div>
       </div>
-      <div className="absolute right-[50px]">
+      <div className="absolute right-50px">
         <ReactToPrint
           trigger={() => (
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hide-on-print">
               Print Invoice
             </button>
           )}

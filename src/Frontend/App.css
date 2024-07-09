@@ -5,16 +5,9 @@
 @tailwind utilities;
 
 @media print {
-    body {
-      visibility: hidden;
-      margin: 0;
-      padding: 0;
-    }
-    .invoice {
-      visibility: visible;
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
+  .hide-on-print {
+    display: none !important;
   }
+}
+
   
