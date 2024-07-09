@@ -1,0 +1,10 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.Jenisys.JanAusadhi
+mac:
+  target: dmg
+win:
+  target: nsis
+files: []
+electronVersion: 30.0.9

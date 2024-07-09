@@ -5,12 +5,15 @@
   "scripts": {
     "start": "vite",
     "electron": "electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "dev": "concurrently \"vite\" \"npm run electron\""
+    "build": "electron-builder build",
+    "dist": "electron-builder dist",
+    "dev": "concurrently \"vite\" \"node server/index.js\" \"npm run electron\"",
+    "build:mac": "electron-builder build --mac",
+    "build:win": "electron-builder build --win --x64",
+    "dist:win": "electron-builder dist --win --x64"
   },
   "keywords": [],
-  "author": "",
+  "author": "Tuhin Das",
   "license": "ISC",
   "description": "",
   "dependencies": {
@@ -38,15 +41,19 @@
     "electron-builder": "^24.13.3",
     "electron-is-dev": "^3.0.1",
     "tailwindcss": "^3.4.3",
-    "vite": "^5.2.12"
+    "vite": "^5.2.12",
+    "concurrently": "^7.5.0"
   },
   "build": {
-    "appId": "JanAushadhi",
+    "appId": "com.Jenisys.JanAusadhi",
     "directories": {
       "output": "dist"
     },
+    "mac": {
+      "target": "dmg"
+    },
     "win": {
-      "target": "nsis" 
+      "target": "nsis"
     }
   }
 }
