@@ -4,7 +4,5 @@ directories:
 appId: com.Jenisys.JanAusadhi
 mac:
   target: dmg
-win:
-  target: nsis
 files: []
-electronVersion: 30.0.9
+electronVersion: 31.2.0
