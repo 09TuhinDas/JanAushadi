@@ -1,8 +1,0 @@
-directories:
-  output: dist
-  buildResources: build
-appId: com.Jenisys.JanAusadhi
-mac:
-  target: dmg
-files: []
-electronVersion: 31.2.0

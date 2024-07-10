@@ -1,8 +1,0 @@
-version: 1.0.0
-files:
-  - url: medicine-1.0.0-arm64.dmg
-    sha512: 8O940JKIckTXMArAMPK8J0opavKBLqlR1pJyqIbE9kwLcNAK9SQvHTSp7B38+jP/n3qimmBlJzeBbCSojDgB5A==
-    size: 127564425
-path: medicine-1.0.0-arm64.dmg
-sha512: 8O940JKIckTXMArAMPK8J0opavKBLqlR1pJyqIbE9kwLcNAK9SQvHTSp7B38+jP/n3qimmBlJzeBbCSojDgB5A==
-releaseDate: '2024-07-10T00:55:14.453Z'
