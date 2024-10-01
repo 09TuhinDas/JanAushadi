@@ -8,6 +8,7 @@ axios.defaults.baseURL = "http://localhost:8080/";
 
 function Invent() {
   const [dataList, setDataList] = useState([]);
+  console.log(dataList);
 
   const getFetchData = async () => {
     const data = await axios.get("/");
@@ -27,8 +28,54 @@ function Invent() {
       alert(data.data.message);
     }
   };
+  const [batchNo, setBatchNo] = useState("Select");
+  const [dCode, setDCode] = useState();
+  function handleSelect(event, drugCode) {
+    setBatchNo((prevState) => ({
+      ...prevState,
+      [drugCode]: event.target.value,
+    }));
+  }
 
-  console.log(dataList);
+  const findDrugCodeByBatchNo = (batchNo) => {
+    const item = dataList.find((e) => e.BatchNo.toString() === batchNo);
+    return item ? item.DrugCode : null;
+  };
+
+  const handleSelect2 = (batchNo) => {
+    const drugCode = findDrugCodeByBatchNo(batchNo);
+    console.log(drugCode);
+    setDCode(drugCode);
+  };
+
+  const [filteredData, setFilteredData] = useState(dataList);
+  const getUniqueDrugCodeRows = (dataList) => {
+    const uniqueDrugCodes = Array.from(
+      new Set(dataList.map((item) => item.DrugCode))
+    );
+    return uniqueDrugCodes.map((code) =>
+      dataList.find((item) => item.DrugCode === code)
+    );
+  };
+  useEffect(() => {
+    if (Object.values(batchNo).every((value) => value === "Select")) {
+      setFilteredData(getUniqueDrugCodeRows(dataList));
+    } else {
+      const updatedData = getUniqueDrugCodeRows(dataList).map((row) => {
+        const selectedBatchNo = batchNo[row.DrugCode];
+        if (selectedBatchNo && selectedBatchNo !== "Select") {
+          const correspondingItem = dataList.find(
+            (item) => item.BatchNo.toString() === selectedBatchNo
+          );
+          if (correspondingItem) {
+            return correspondingItem;
+          }
+        }
+        return row;
+      });
+      setFilteredData(updatedData);
+    }
+  }, [batchNo, dataList]);
 
   const [files, setFile] = useState(null);
 
@@ -43,6 +90,7 @@ function Invent() {
       fd.append("file${i+1}", files[i]);
     }
   }
+
   return (
     <div className="Invent">
       <div className="">
@@ -128,9 +176,9 @@ function Invent() {
             </tr>
           </thead>
           <tbody className="p-[10px] text-center">
-            {dataList.map((e, index) => {
+            {filteredData.map((e, index) => {
               return (
-                <tr key={e.id}>
+                <tr key={e._id}>
                   <td className="border border-solid border-[black] border-collapse p-[10px]">
                     {index + 1}
                   </td>
@@ -141,7 +189,20 @@ function Invent() {
                     {e.ProductName}
                   </td>
                   <td className="border border-solid border-[black] border-collapse p-[10px]">
-                    {e.BatchNo}
+                    <select
+                      className="form-select"
+                      onChange={(event) => handleSelect(event, e.DrugCode)}
+                      value={batchNo[e.DrugCode] || "Select"}
+                    >
+                      <option value="Select">Select Batch</option>
+                      {dataList
+                        .filter((item) => item.DrugCode === e.DrugCode)
+                        .map((item, idx) => (
+                          <option key={idx} value={item.BatchNo}>
+                            {item.BatchNo}
+                          </option>
+                        ))}
+                    </select>
                   </td>
                   <td className="border border-solid border-[black] border-collapse p-[10px]">
                     {e.Quantity}

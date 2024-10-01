@@ -8,6 +8,8 @@ axios.defaults.baseURL = "http://localhost:8080/";
 function EditInvent() {
   const { id } = useParams();
 
+  const [selectedBatchNo, setSelectedBatchNo] = useState("Select");
+  const [dataList2, setDataList2] = useState([]);
   const [EditformData, setFormDataEdit] = useState({
     DrugCode: "",
     ProductName: "",
@@ -22,16 +24,31 @@ function EditInvent() {
     amount: "",
   });
 
-  const [dataList, setDataList] = useState({});
+  useEffect(() => {
+    getFetchDataAll();
+  }, []);
 
-  const handleonChange = (e) => {
-    const { value, name } = e.target;
-    setFormDataEdit((preve) => {
-      return {
-        ...preve,
-        [name]: value,
-      };
-    });
+  useEffect(() => {
+    getFetchData();
+  }, [id]);
+
+  useEffect(() => {
+    if (selectedBatchNo !== "Select") {
+      const item = dataList2.find(
+        (obj) => obj.BatchNo === parseInt(selectedBatchNo)
+      );
+      if (item) {
+        setFormDataEdit(item);
+      }
+    }
+  }, [selectedBatchNo, dataList2]);
+
+  const getFetchDataAll = async () => {
+    const data = await axios.get("/");
+    console.log(data);
+    if (data.data.success) {
+      setDataList2(data.data.data);
+    }
   };
 
   const getFetchData = async () => {
@@ -39,18 +56,27 @@ function EditInvent() {
       const response = await axios.get(`/getUser/${id}`);
       console.log(response.data);
       if (response.data.success) {
-        setDataList(response.data.data);
-        setFormDataEdit(response.data.data);
+        const data = response.data.data;
+        console.log(response.data.success);
+        setFormDataEdit(data);
       }
     } catch (error) {
       console.error("Failed to fetch data:", error);
-      // Handle error appropriately
     }
   };
 
-  useEffect(() => {
-    getFetchData();
-  }, [id]);
+  const handleSelect = (event) => {
+    const targetBatchNo = event.target.value;
+    setSelectedBatchNo(targetBatchNo);
+  };
+
+  const handleonChange = (e) => {
+    const { value, name } = e.target;
+    setFormDataEdit((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const updateForm = async (e) => {
     e.preventDefault();
@@ -58,15 +84,12 @@ function EditInvent() {
       const response = await axios.put(`/update/${id}`, EditformData);
       console.log(response.data);
       if (response.data.success) {
-        getFetchData();
         alert(response.data.message);
       }
     } catch (error) {
       console.error("Failed to update data:", error);
-      // Handle error appropriately
     }
   };
-
   return (
     <div className="EditInvent">
       <div className="mt-[80px] ml-[9px] flex flex-col grow shrink-0 bg-stone-300 py-1 px-2 text-[27px] font-bold  border-t-2 border-b border-black border-solid basis-0 border-x-2 w-auto h-[55px] text-center">
@@ -90,6 +113,7 @@ function EditInvent() {
                 onChange={handleonChange}
               />
             </div>
+
             <div className="mb-[7px]">
               <label htmlFor="ProductName">Product Name: </label>
               <input
@@ -103,14 +127,21 @@ function EditInvent() {
             </div>
             <div className="mb-[20px]">
               <label htmlFor="Batchno">Batch No.: </label>
-              <input
-                className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px] "
-                type="Number"
-                id="BatchNo"
-                name="BatchNo"
-                value={EditformData.BatchNo}
-                onChange={handleonChange}
-              />
+
+              <select
+                className="form-select"
+                onChange={handleSelect}
+                value={EditformData.BatchNo || "Select"}
+              >
+                <option value="Select">Select Batch</option>
+                {dataList2
+                  .filter((item) => item.DrugCode === EditformData.DrugCode)
+                  .map((item, idx) => (
+                    <option key={idx} value={item.BatchNo}>
+                      {item.BatchNo}
+                    </option>
+                  ))}
+              </select>
             </div>
             <div className="mb-[20px]">
               <label htmlFor="Quantity">Quantity: </label>
@@ -204,6 +235,7 @@ function EditInvent() {
                 onChange={handleonChange}
               />
             </div>
+
             <div className="mb-[20px] mr-[100px]" align="right">
               <button className="  rounded-[30.859px] bg-green-300 w-[190px] text-[50px]  active:border-white duration-300 active:text-white">
                 Update
