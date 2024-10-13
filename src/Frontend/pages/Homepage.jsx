@@ -1,31 +1,3 @@
-import React from "react";
-import "../App.css";
-import Netsale from "../components1/Netsale";
-import Profit from "../components1/Profit";
-import NetPurshase from "../components1/NetPurchase";
-import NearExp from "../components1/nearExp";
-import RefilStk from "../components1/RefilStk";
-import Movingitms from "../components1/Movingitms";
-import DuePay from "../components1/DuePay";
-
-function Home() {
-  return (
-    <div className="w-auto h-auto z-auto">
-      <div className="flex mt-[5px]">
-        <Netsale />
-        <Movingitms />
-        <DuePay />
-      </div>
-      <Profit />
-      <NetPurshase />
-      <object id="near-exp" align="left">
-        <NearExp />
-      </object>
-      <div id="refil-stk" align="right">
-        <RefilStk />
-      </div>
-    </div>
-  );
-}
-
-export default Home;
+version https://git-lfs.github.com/spec/v1
+oid sha256:a2f6cc408d698fa5dc616a09f48b73dcef794c4013ef3bdf243d48fe1c3442a9
+size 800
