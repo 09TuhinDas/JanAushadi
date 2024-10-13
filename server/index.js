@@ -8,23 +8,32 @@ app.use(cors({
   }));
 app.use(express.json());
 
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
+
 const PORT = process.env.PORT || 8080;
 
 // Medicine schema
 const schemaData = mongoose.Schema({
-    DrugCode: Number,
-    ProductName: String,
-    BatchNo: Number,
-    Quantity: Number,
-    Discount: Number,
-    MfgDate: String,
-    Expire: String,
-    Pack: Number,
-    MRP: Number,
-    Tax: Number,
-    amount: Number,
+  DrugCode: Number,
+  ProductName: String,
+  batches: [
+    {
+      BatchNo: Number,
+      Quantity: Number,
+      Discount: Number,
+      MfgDate: String,
+      Expire: String,
+      Pack: Number,
+      MRP: Number,
+      Tax: Number,
+      amount: Number
+    }
+  ]
 }, {
-    timestamps: true
+  timestamps: true
 });
 
 // Invoice schema
@@ -43,30 +52,48 @@ const invoiceSchema = mongoose.Schema({
     }],
     netAmount: { type: Number, required: true }, // New field for net amount
   }, { timestamps: true });
+
 // Medicine model
-const userModel = mongoose.model("User", schemaData);
+const medicineModel = mongoose.model("Medicine", schemaData);
 
 // Invoice model
 const invoiceModel = mongoose.model("Invoice", invoiceSchema);
 
 // Read medicines
 app.get('/', async (req, res) => {
-    const data = await userModel.find();
+    const data = await medicineModel.find();
     res.json({ success: 'true', data: data });
 });
 
 // Create medicine
-app.post('/create', async (req, res) => {
-    console.log(req.body);
-    const data = new userModel(req.body);
-    await data.save();
-    res.send({ success: 'true', message: "Data saved successfully", data: data });
+app.post("/create", async (req, res) => {
+    try {
+        const { DrugCode, ProductName, BatchNo, Quantity, Discount, MfgDate, Expire, Pack, MRP, Tax, amount } = req.body;
+
+        if (!ProductName) {
+            return res.status(400).json({ message: "ProductName is required." });
+        }
+
+        const result = await medicineModel.findOneAndUpdate(
+            { DrugCode: DrugCode },
+            { 
+                $set: { ProductName }, // Include ProductName in the update
+                $push: { batches: { BatchNo, Quantity, Discount, MfgDate, Expire, Pack, MRP, Tax, amount } } 
+            },
+            { new: true, upsert: true }
+        );
+
+        res.send({ success: true, message: "Batch added successfully", data: result });
+    } catch (error) {
+        console.error("Error saving batch:", error);
+        res.status(500).json({ message: error.message });
+    }
 });
 
 // Get medicine by ID
-app.get('/getUser/:id', async (req, res) => {
+app.get('/getMedicine/:id', async (req, res) => {
     const id = req.params.id;
-    const data = await userModel.findById({ _id: id });
+    const data = await medicineModel.findById({ _id: id });
     if (data) {
         res.status(200).json({ success: 'true', message: "Data fetched successfully", data: data });
     } else {
@@ -78,9 +105,27 @@ app.get('/getUser/:id', async (req, res) => {
 app.put("/update/:id", async (req, res) => {
     try {
         const id = req.params.id;
-        const { ...rest } = req.body;
-        const data = await userModel.updateOne({ _id: id }, { $set: rest });
-        res.send({ success: true, message: "Data updated successfully", data: data });
+        const { DrugCode, ProductName, BatchNo, Quantity, Discount, MfgDate, Expire, Pack, MRP, Tax } = req.body;
+
+        const data = await medicineModel.updateOne(
+            { _id: id },
+            {
+                $set: {
+                    DrugCode,
+                    ProductName,
+                    BatchNo,
+                    Quantity,
+                    Discount,
+                    MfgDate,
+                    Expire,
+                    Pack,
+                    MRP,
+                    Tax,
+                },
+            }
+        );
+
+        res.send({ success: true, message: "Data updated successfully", data });
     } catch (error) {
         console.error("Failed to update data:", error);
         res.status(500).send({ success: false, message: "Failed to update data" });
@@ -90,11 +135,11 @@ app.put("/update/:id", async (req, res) => {
 // Get medicine by DrugCode
 app.get("/drug/:DrugCode", async (req, res) => {
     try {
-        const drug = await userModel.findOne({ DrugCode: req.params.DrugCode });
+        const drug = await medicineModel.findOne({ DrugCode: req.params.DrugCode });
         if (!drug) {
             res.status(404).json({ message: 'Drug not found' });
         } else {
-            res.json({ ProductName: drug.ProductName, BatchNo: drug.BatchNo, Quantity: drug.Quantity, Discount: drug.Discount, Pack: drug.Pack, MRP: drug.MRP, amount: drug.amount, MfgDate: drug.MfgDate, Expire: drug.Expire });
+            res.json(drug); // Return the entire drug object
         }
     } catch (error) {
         console.error("Error fetching drug:", error);
@@ -102,83 +147,151 @@ app.get("/drug/:DrugCode", async (req, res) => {
     }
 });
 
-// Update medicine quantity and pack by DrugCode
-app.put('/drug/:DrugCode', async (req, res) => {
+// Get batch numbers by DrugCode
+app.get("/drug/:DrugCode/batches", async (req, res) => {
     try {
-        const { quantity } = req.body;
-        const medicine = await userModel.findOne({ DrugCode: req.params.DrugCode });
+      const drugCode = req.params.DrugCode;
+      console.log(`Searching for drug with code ${drugCode}`);
+      const drug = await medicineModel.findOne({ DrugCode: parseInt(drugCode) });
+      console.log(`Found drug: ${JSON.stringify(drug)}`);
+      if (!drug) {
+        return res.status(404).json({ message: 'Drug not found' });
+      }
+      res.json({
+        ProductName: drug.ProductName,
+        batches: drug.batches // Return all batches with details
+      });
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+// Update medicine quantity and pack by DrugCode and BatchNo
+app.put('/drug/:DrugCode/batch/:BatchNo', async (req, res) => {
+    try {
+        const { DrugCode, BatchNo } = req.params;
+        const { Quantity, Discount, MfgDate, Expire, Pack, MRP, Tax, amount, quantityToDeduct } = req.body;
+
+        const medicine = await medicineModel.findOne({ DrugCode: parseInt(DrugCode) });
         if (!medicine) {
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
-        const quantityPerPack = Math.floor(medicine.Quantity / medicine.Pack);
-        if (quantity > quantityPerPack) {
-            return res.status(400).json({ message: 'Quantity exceeds available quantity per pack' });
+        const batch = medicine.batches.find(batch => batch.BatchNo === parseInt(BatchNo));
+        if (!batch) {
+            return res.status(404).json({ message: 'Batch not found' });
         }
 
-        const newQuantity = medicine.Quantity - quantity;
-        let newPackSize = medicine.Pack;
+        if (quantityToDeduct !== undefined) {
+            const quantityNumber = Number(quantityToDeduct);
+            if (batch.Quantity < quantityNumber) {
+                return res.status(400).json({ message: 'Insufficient quantity' });
+            }
 
-        if (quantity === quantityPerPack) {
-            newPackSize -= 1;
+            // Deduct the quantity and update the pack size
+            batch.Quantity -= quantityNumber;
+
+            // Update pack size based on the new quantity
+            const totalPacks = Math.floor(batch.Quantity / batch.Pack);
+            batch.Pack = totalPacks > 0 ? totalPacks : 1; // Ensure pack size is at least 1
+        } else {
+            // Update batch details if provided
+            batch.Quantity = Quantity !== undefined ? Quantity : batch.Quantity;
+            batch.Discount = Discount !== undefined ? Discount : batch.Discount;
+            batch.MfgDate = MfgDate !== undefined ? MfgDate : batch.MfgDate;
+            batch.Expire = Expire !== undefined ? Expire : batch.Expire;
+            batch.Pack = Pack !== undefined ? Pack : batch.Pack;
+            batch.MRP = MRP !== undefined ? MRP : batch.MRP;
+            batch.Tax = Tax !== undefined ? Tax : batch.Tax;
+            batch.amount = amount !== undefined ? amount : batch.amount;
         }
 
-        if (newPackSize < 0) {
-            return res.status(400).json({ message: 'Quantity exceeds available pack size' });
-        }
-
-        medicine.Quantity = newQuantity;
-        medicine.Pack = newPackSize;
         await medicine.save();
-        res.json(medicine);
+        res.json({ success: true, message: 'Batch details updated', data: medicine });
     } catch (err) {
+        console.error("Error updating batch:", err);
         res.status(500).json({ message: err.message });
     }
 });
+
+// Get batch details by DrugCode and BatchNo
+// Get batch details by DrugCode and BatchNo
+app.get("/drug/:DrugCode/batch/:BatchNo", async (req, res) => {
+    try {
+        const drugCode = req.params.DrugCode;
+        const batchNo = req.params.BatchNo;
+
+        const medicine = await medicineModel.findOne({ DrugCode: parseInt(drugCode) });
+        if (!medicine) {
+            return res.status(404).json({ message: 'Medicine not found' });
+        }
+
+        const batch = medicine.batches.find(batch => batch.BatchNo === parseInt(batchNo));
+        if (!batch) {
+            return res.status(404).json({ message: 'Batch not found' });
+        }
+
+        res.json({
+            Quantity: batch.Quantity,
+            Discount: batch.Discount,
+            MfgDate: batch.MfgDate,
+            Expire: batch.Expire,
+            Pack: batch.Pack, // Return the Pack value
+            MRP: batch.MRP,
+            Tax: batch.Tax,
+            amount: batch.amount
+        });
+    } catch (error) {
+        console.error("Error fetching batch details:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update medicine quantity and pack by DrugCode and BatchNo
+// Update medicine quantity and pack by DrugCode and BatchNo
+
+
 
 // Delete medicine by ID
 app.delete("/delete/:id", async (req, res) => {
     const id = req.params.id;
     console.log(id);
-    const data = await userModel.deleteOne({ _id: id });
+    const data = await medicineModel.deleteOne({ _id: id });
     res.send({ success: 'true', message: "Data deleted successfully", data: data });
 });
 
 // Update medicine quantity and pack
 app.post("/updateDrug", async (req, res) => {
     try {
-        const { DrugCode, Quantity, Pack } = req.body;
+        const { DrugCode, BatchNo, Quantity } = req.body;
 
-        if (!DrugCode || Quantity == null || Pack == null) {
+        if (!DrugCode || !BatchNo || Quantity == null) {
             return res.status(400).json({ message: 'Invalid input data' });
         }
 
-        const drug = await userModel.findOne({ DrugCode });
+        const drug = await medicineModel.findOne({ DrugCode });
 
         if (!drug) {
             return res.status(404).json({ message: 'Drug not found' });
         }
 
-        if (drug.Quantity < Quantity || drug.Pack < Pack) {
-            return res.status(400).json({ message: 'Insufficient quantity or pack' });
+        const batch = drug.batches.find((batch) => batch.BatchNo === parseInt(BatchNo));
+        if (!batch) {
+            return res.status(404).json({ message: 'Batch not found' });
         }
 
-        const batchNo = drug.BatchNo;
-        const ProductName = drug.ProductName;
-        const Mfg = drug.MfgDate;
-        const Expire = drug.Expire;
+        if (batch.Quantity < Quantity) {
+            return res.status(400).json({ message: 'Insufficient quantity' });
+        }
 
-        drug.Quantity -= Quantity;
-        drug.Pack -= Pack;
+        batch.Quantity -= Quantity;
 
         await drug.save();
 
         res.json({
-            message: 'Quantity and pack updated successfully',
-            BatchNo: batchNo,
-            ProductName: ProductName,
-            MfgDate: Mfg,
-            Expire: Expire
+            message: 'Quantity updated successfully',
+            BatchNo: batch.BatchNo,
+            Quantity: batch.Quantity
         });
     } catch (error) {
         console.error("Error updating drug:", error);
@@ -197,7 +310,7 @@ app.get('/latest-invoice', async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-// Get the next invoice number
+
 // Get the next invoice number
 app.get('/next-invoice-number', async (req, res) => {
   try {
@@ -206,11 +319,10 @@ app.get('/next-invoice-number', async (req, res) => {
       res.json({ nextInvoiceNumber });
   } catch (error) {
       console.error("Error fetching next invoice number:", error);
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status (500).json({ message: 'Internal Server Error' });
   }
 });
 
-// Save a new invoice number and billed items
 // Save a new invoice number and billed items
 app.post("/save-invoice", async (req, res) => {
     try {
@@ -252,6 +364,29 @@ app.post("/save-invoice", async (req, res) => {
     }
 });
 
+app.put("/drug/:DrugCode", async (req, res) => {
+    try {
+        const { DrugCode } = req.params;
+        const { ProductName, batches } = req.body; // Include other fields as needed
+
+        const drug = await medicineModel.findOneAndUpdate(
+            { DrugCode: parseInt(DrugCode) },
+            { $set: { ProductName, batches } }, // Update fields based on your requirements
+            { new: true } // Return the updated document
+        );
+
+        if (!drug) {
+            return res.status(404).json({ message: 'Drug not found' });
+        }
+
+        res.json({ success: true, message: 'Drug updated successfully', data: drug });
+    } catch (error) {
+        console.error("Error updating drug:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 // Fetch an invoice by its number
 app.get('/invoice/:invoiceNumber', async (req, res) => {
   try {
@@ -266,11 +401,12 @@ app.get('/invoice/:invoiceNumber', async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
 mongoose.connect("mongodb://localhost:27017/medicine")
     .then(() => {
         console.log("Connected to DB");
         app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
+            console.log (`Server is running on port ${PORT}`);
         });
     })
     .catch((err) => console.log(err));

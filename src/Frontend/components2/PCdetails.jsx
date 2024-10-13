@@ -17,22 +17,10 @@ function PCdetails() {
   const [drugCodeToContinue, setDrugCodeToContinue] = useState("");
   const [quantityToContinue, setQuantityToContinue] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState(0);
+  const [batchNumbers, setBatchNumbers] = useState([]);
+  const [batchNumber, setBatchNumber] = useState("");
+  const [packSize, setPackSize] = useState("");
   const [latestInvoice, setLatestInvoice] = useState(null);
-
-  useEffect(() => {
-    const fetchLatestInvoice = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8080/latest-invoice"
-        );
-        setLatestInvoice(response.data.invoiceNumber);
-      } catch (error) {
-        console.error("Error fetching latest invoice:", error);
-      }
-    };
-
-    fetchLatestInvoice();
-  }, []);
 
   // Fetch next invoice number on component mount
   useEffect(() => {
@@ -70,21 +58,27 @@ function PCdetails() {
         const response = await axios.get(
           `http://localhost:8080/drug/${drugCode}`
         );
-        console.log("Response from drug fetch:", response.data);
-        setDrugInfo(response.data); // Update drugInfo state
+        setDrugInfo(response.data); // Ensure this includes MRP
         setAmount(0); // Reset amount on new drug fetch
+
+        // Fetch batch numbers for the drug
+        const batchResponse = await axios.get(
+          `http://localhost:8080/drug/${drugCode}/batches`
+        );
+        setBatchNumbers(batchResponse.data); // Set batch numbers state
       } catch (error) {
-        console.error("Error fetching drug:", error);
+        console.error("Error fetching drug or batch numbers:", error);
         setDrugInfo(null);
-        setAmount(0); // Reset amount if fetch fails
+        setAmount(0); // Reset amount on error
+        setBatchNumbers([]); // Reset batch numbers on error
       }
     }
   };
+
   // Calculate amount based on quantity, drugInfo, and discount changes
   useEffect(() => {
-    if (drugInfo && quantity) {
-      const quantityPerPack = Math.floor(drugInfo.Quantity / drugInfo.Pack);
-      const unitPrice = drugInfo.MRP / quantityPerPack;
+    if (drugInfo && quantity && packSize > 0) {
+      const unitPrice = drugInfo.MRP / packSize;
       let calculatedAmount = unitPrice * quantity;
 
       if (discount) {
@@ -93,13 +87,18 @@ function PCdetails() {
 
       setAmount(calculatedAmount);
     } else {
-      setAmount(0); // Set amount to 0 when quantity is empty
+      setAmount(0); // Set amount to 0 when quantity is empty or packSize is invalid
     }
-  }, [quantity, drugInfo, discount]);
+  }, [quantity, drugInfo, discount, packSize]);
 
   // Handle change in quantity input
   const handleQuantityChange = (e) => {
-    setQuantity(e.target.value); // Update quantity state
+    const value = Number(e.target.value);
+    if (!isNaN(value) && value >= 0) {
+      setQuantity(value);
+    } else {
+      setQuantity(0);
+    }
   };
 
   // Handle change in discount input
@@ -113,11 +112,11 @@ function PCdetails() {
     if (drugInfo) {
       const newEntry = {
         drugCode,
-        productName: drugInfo.ProductName,
-        batchNo: drugInfo.BatchNo,
+        productName: drugInfo.ProductName, // Ensure this is the correct field
+        batchNo: batchNumber, // Use batchNumber state variable
         quantity,
-        packSize: drugInfo.Pack,
-        mrp: drugInfo.MRP,
+        packSize: drugInfo.Pack, // Pack size of the selected batch
+        mrp: drugInfo.MRP, // MRP of the selected batch
         discount,
         mfgDate: drugInfo.MfgDate,
         expire: drugInfo.Expire,
@@ -130,6 +129,8 @@ function PCdetails() {
       setDrugInfo(null);
       setAmount(0);
       setDiscount(0);
+      setBatchNumber("");
+      setPackSize("");
       // Set continue state
       setDrugInfoToContinue(drugInfo);
       setDrugCodeToContinue(drugCode);
@@ -137,83 +138,106 @@ function PCdetails() {
     }
   };
 
-  // Handle continue button click (updating drug quantity and pack size)
-
-  // Handle continue button click (updating drug quantity and pack size)
+  // Handle Continue button click
   const handleContinue = async () => {
-    if (drugInfoToContinue && drugCodeToContinue && quantityToContinue) {
-      try {
-        // Step 1: Generate invoice number
-        const {
-          data: { nextInvoiceNumber: invoiceNumber },
-        } = await axios.get("http://localhost:8080/next-invoice-number");
+    try {
+      // Get the next invoice number
+      const {
+        data: { nextInvoiceNumber: invoiceNumber },
+      } = await axios.get("http://localhost:8080/next-invoice-number");
 
-        // Step 2: Prepare data for invoice
-        const billedItems = tableData.map((entry) => ({
-          DrugCode: entry.drugCode,
-          ProductName: entry.productName,
-          BatchNo: entry.batchNo,
-          Quantity: entry.quantity,
-          Pack: entry.packSize,
-          MRP: entry.mrp,
-          Discount: entry.discount,
-          MfgDate: entry.mfgDate,
-          Expire: entry.expire,
-          amount: entry.amount,
-        }));
+      // Prepare billed items data
+      const billedItems = tableData.map((entry) => ({
+        DrugCode: entry.drugCode,
+        ProductName: entry.productName,
+        BatchNo: entry.batchNo,
+        Quantity: entry.quantity,
+        Pack: entry.packSize,
+        MRP: entry.mrp,
+        Discount: entry.discount,
+        MfgDate: entry.mfgDate,
+        Expire: entry.expire,
+        amount: entry.amount,
+      }));
 
-        const invoiceData = {
-          // Define invoiceData with required fields
-          invoiceNumber,
-          billedItems,
-          netAmount: calculateTotalAmount(),
-        };
+      const invoiceData = {
+        invoiceNumber,
+        billedItems,
+        netAmount: calculateTotalAmount(),
+      };
 
-        console.log("Data being sent to API:", invoiceData);
+      console.log("Data being sent to API:", invoiceData);
 
-        // Step 3: Save invoice data to API
-        const { data: saveInvoiceResponse } = await axios.post(
-          "http://localhost:8080/save-invoice",
-          invoiceData // Pass invoiceData to the API call
+      // Save the invoice
+      const { data: saveInvoiceResponse } = await axios.post(
+        "http://localhost:8080/save-invoice",
+        invoiceData
+      );
+      console.log("Response from saving invoice:", saveInvoiceResponse);
+
+      // Update drug quantity and pack size
+      if (tableData.length > 0) {
+        const lastEntry = tableData[tableData.length - 1];
+
+        // Fetch current batch details
+        const currentInventoryResponse = await axios.get(
+          `http://localhost:8080/drug/${lastEntry.drugCode}/batch/${lastEntry.batchNo}`
         );
-        console.log("Response from saving invoice:", saveInvoiceResponse);
 
-        // Step 4: Update drug details
-        const { data: updateDrugResponse } = await axios.put(
-          `http://localhost:8080/drug/${drugCodeToContinue}`,
-          {
-            quantity: Number(quantityToContinue),
-            packSize: drugInfoToContinue.Pack,
+        const batchDetails = currentInventoryResponse.data; // Adjust based on your API response structure
+        const currentQuantity = batchDetails.Quantity; // Ensure this matches the API response structure
+        const newQuantity = currentQuantity - lastEntry.quantity; // Subtract the billed quantity
+
+        console.log(
+          `Current Quantity: ${currentQuantity}, New Quantity: ${newQuantity}`
+        );
+
+        // Update the drug batch with new quantity and pack size
+        try {
+          const { data: updateDrugResponse } = await axios.put(
+            `http://localhost:8080/drug/${lastEntry.drugCode}/batch/${lastEntry.batchNo}`,
+            {
+              quantityToDeduct: lastEntry.quantity, // Pass the quantity to deduct
+              // If you want to calculate the new pack size, you can also include it here
+            }
+          );
+          console.log("Response from updating drug:", updateDrugResponse);
+
+          if (updateDrugResponse.success) {
+            alert("Quantity and pack size updated successfully");
+          } else {
+            alert("Failed to update drug quantity and pack size");
           }
-        );
-        console.log("Response from updating drug:", updateDrugResponse);
-        alert("Quantity and pack size updated successfully");
-
-        // Clear state
-        setDrugCode("");
-        setQuantity("");
-        setDrugInfo(null);
-        setAmount(0);
-        setDiscount(0);
-        setTableData([]);
-        setDrugInfoToContinue(null);
-        setDrugCodeToContinue("");
-        setQuantityToContinue("");
-
-        // Redirect to invoice page
-        navigate(`/Invoice/${invoiceNumber}`);
-      } catch (error) {
-        if (error.response && error.response.status === 500) {
-          console.error("Internal Server Error:", error.response.data);
-          alert("Failed to handle continue process. Please try again later.");
-        } else {
-          console.error("Error handling continue:", error);
-          alert("An unexpected error occurred. Please try again later.");
+        } catch (error) {
+          console.error("Error updating drug:", error);
+          alert("Failed to update drug quantity and pack size");
         }
+      } else {
+        console.error("No entries in table data");
+        alert("No entries in table data");
       }
-    } else {
-      alert("Please fill in all required fields before continuing.");
+
+      // Reset state after processing
+      resetFormState();
+      navigate(`/Invoice/${invoiceNumber}`);
+    } catch (error) {
+      console.error("Error handling Continue button click:", error);
     }
+  };
+
+  // Function to reset form state
+  const resetFormState = () => {
+    setDrugCode("");
+    setQuantity("");
+    setDrugInfo(null);
+    setAmount(0);
+    setDiscount(0);
+    setTableData([]);
+    setDrugInfoToContinue(null);
+    setDrugCodeToContinue("");
+    setQuantityToContinue("");
+    setBatchNumber("");
+    setPackSize("");
   };
 
   const handleDeleteRow = (indexToDelete) => {
@@ -231,6 +255,36 @@ function PCdetails() {
     return total.toFixed(2);
   };
 
+  const handleBatchSelection = async (e) => {
+    const selectedBatch = e.target.value;
+    setBatchNumber(selectedBatch);
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/drug/${drugCode}/batch/${selectedBatch}`
+      );
+      console.log("Batch details response:", response.data);
+      const { quantity, Pack, MRP, ...otherDetails } = response.data;
+
+      console.log("Pack size from API:", Pack);
+      setPackSize(Pack !== undefined && Pack !== null ? Pack : 1);
+      console.log("Updated packSize state:", Pack);
+
+      setDrugInfo((prev) => ({
+        ...prev,
+        Pack,
+        MRP,
+        ...otherDetails,
+      }));
+    } catch (error) {
+      console.error("Error fetching batch details:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Current packSize:", packSize);
+  }, [packSize]);
+
   return (
     <div class="Product-invoice">
       <div className="flex mt-[75px]">
@@ -245,9 +299,9 @@ function PCdetails() {
       </div>
       <div className="flex">
         <div class="details&invoice">
-          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[355px] w-[390px]">
+          <div className="mt-[9px] ml-[9px] shrink-0 bg-white border-t border-b border-black border-solid border-x-2 h-[430px] w-[390px]">
             <form
-              className="mt-[20px] ml-[9px] text-[23px]"
+              className="mt-[20px] ml-[9px] text-[29px]"
               onSubmit={handleSubmit}
             >
               <div className="mb-[7px]">
@@ -264,7 +318,7 @@ function PCdetails() {
               <div className="mb-[7px]">
                 <label htmlFor="ProductName">Product Name:</label>
                 <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[220px] "
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[180px] "
                   type="text"
                   id="ProductName"
                   name="ProductName"
@@ -273,16 +327,26 @@ function PCdetails() {
                 />
               </div>
               <div className="mb-[5px]">
-                <label htmlFor="BatchNo">Batch : </label>
-                <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px] "
-                  type="text"
-                  id="BatchNo"
-                  name="BatchNo"
-                  value={drugInfo ? drugInfo.BatchNo : ""}
-                  readOnly
-                />
+                Batch No.:
+                <select
+                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[140px]"
+                  value={batchNumber}
+                  onChange={handleBatchSelection}
+                >
+                  <option value="">Select a batch</option>
+                  {Array.isArray(drugInfo?.batches) &&
+                  drugInfo?.batches.length > 0 ? (
+                    drugInfo.batches.map((batch) => (
+                      <option key={batch.BatchNo} value={batch.BatchNo}>
+                        {batch.BatchNo}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No batches available</option>
+                  )}
+                </select>
               </div>
+
               <div className="mb-[5px]">
                 Qty.:
                 <input
@@ -311,7 +375,9 @@ function PCdetails() {
                   className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[100px]"
                   type="number"
                   name="Pack-size"
-                  value={quantity ? (drugInfo ? drugInfo.Pack : "") : 0}
+                  value={
+                    packSize !== undefined && packSize !== null ? packSize : 0
+                  }
                   readOnly
                 />
               </div>
@@ -336,7 +402,7 @@ function PCdetails() {
           <div className="ml-[9px] justify-center px-5 py-2 bg-white text-[20px] border-t border-b border-black border-solid border-x-2 w-[390px]">
             Customer Details
           </div>
-          <div className="ml-[9px] mb-[9px] shrink-0 bg-white border-t border-b-2 border-black border-solid border-x-2 h-[450px] w-[390px]">
+          <div className="ml-[9px] mb-[9px] shrink-0 bg-white border-t border-b-2 border-black border-solid border-x-2 h-[75px] w-[390px]">
             <form className="mt-[20px] ml-[9px] text-[25px]" action="">
               <div className="mb-[15px]">
                 Invoice No. :
@@ -346,50 +412,6 @@ function PCdetails() {
                   value={invoiceNumber}
                   readOnly
                 />
-              </div>
-              <div className="mb-[15px]">
-                Pat.Mob.No. :
-                <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[190px] "
-                  placeholder="Phone Number"
-                  type="number"
-                  name="mobile-number"
-                />
-              </div>
-              <div className="mb-[15px]">
-                Email :
-                <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[290px]"
-                  type="email"
-                  placeholder="Email"
-                  name="Email-Address"
-                />
-              </div>
-              <div className="mb-[15px]">
-                Patient Name :
-                <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[180px] "
-                  type="text"
-                  placeholder="Name"
-                  name="Patient-Name"
-                />
-              </div>
-              <div className="mb-[15px]">
-                Doctors Name :
-                <input
-                  className="ml-[5px] rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border w-[180px]"
-                  type="text"
-                  name="Doc.-Name"
-                />
-              </div>
-              <div className="mb-[15px]">
-                Remark:{" "}
-                <textarea
-                  className="rounded-[10.052px] border-[rgba(0,_0,_0,_0.5)] border-solid border"
-                  name="Remark"
-                  cols="25"
-                  rows="2"
-                ></textarea>
               </div>
             </form>
           </div>
