@@ -8,11 +8,12 @@ const net = require("net");
 log.transports.file.level = "info";
 
 let win;
-let backendApp, connectDB;
+let backendServer; // ✅ Store the backend server instance
+let connectDB, backendApp;
 const PORT_FILE = path.join(app.getPath("userData"), "backend-port.txt");
 
 // ✅ Check if in development mode
-const isDev = !app.isPackaged; 
+const isDev = !app.isPackaged;
 
 // ✅ Find an Available Port
 function findAvailablePort(startPort) {
@@ -37,8 +38,8 @@ async function loadBackend() {
   if (fs.existsSync(backendPath)) {
     try {
       const backend = require(backendPath);
-      backendApp = backend.app;
-      connectDB = backend.connectDB;
+      backendApp = backend.app; // ✅ Store Express app
+      connectDB = backend.connectDB; // ✅ Store DB connection function
       console.log("✅ Backend loaded from:", backendPath);
     } catch (err) {
       console.error("❌ Failed to load backend:", err);
@@ -57,7 +58,7 @@ async function startBackend() {
       return;
     }
     await connectDB();
-    backendApp.listen(port, () => {
+    backendServer = backendApp.listen(port, () => { // ✅ Store server instance
       console.log(`✅ Backend running at http://localhost:${port}`);
       fs.writeFileSync(PORT_FILE, port.toString().trim(), { encoding: "utf8" });
     });
@@ -107,13 +108,14 @@ async function createWindow() {
       enableRemoteModule: false,
       preload: preloadPath,
       sandbox: false,
+      experimentalFeatures: false,
     },
   });
 
   if (isDev) {
     win.loadURL("http://localhost:5173");
   } else {
-    const indexPath = path.join(process.resourcesPath, "dist", "index.html");
+    const indexPath = path.join(__dirname, "..", "dist", "index.html");
     console.log("🔍 Loading index file from:", indexPath);
     if (!fs.existsSync(indexPath)) {
       console.error("❌ index.html file missing:", indexPath);
@@ -142,10 +144,10 @@ app.on("activate", () => {
   if (!win) createWindow();
 });
 
-// ✅ Graceful Shutdown
+// ✅ Graceful Shutdown - Fixes backendApp.close issue
 app.on("before-quit", () => {
-  if (backendApp) {
-    backendApp.close(() => {
+  if (backendServer) { // ✅ Ensure backend server instance exists
+    backendServer.close(() => { 
       console.log("✅ Backend server closed.");
     });
   }

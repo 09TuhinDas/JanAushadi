@@ -35,7 +35,7 @@ const server = app.listen(PORT, () => {
     fs.writeFileSync(PORT_FILE, assignedPort.toString());
 });
 
-module.exports = { app };
+
 
 module.exports = { app, connectDB };
 
