@@ -8,12 +8,12 @@ const net = require("net");
 log.transports.file.level = "info";
 
 let win;
-let backendServer; // ✅ Store the backend server instance
-let connectDB, backendApp;
+let backendApp, connectDB;
+let backendServer; // Store the actual server instance
 const PORT_FILE = path.join(app.getPath("userData"), "backend-port.txt");
 
 // ✅ Check if in development mode
-const isDev = !app.isPackaged;
+const isDev = !app.isPackaged; 
 
 // ✅ Find an Available Port
 function findAvailablePort(startPort) {
@@ -38,8 +38,8 @@ async function loadBackend() {
   if (fs.existsSync(backendPath)) {
     try {
       const backend = require(backendPath);
-      backendApp = backend.app; // ✅ Store Express app
-      connectDB = backend.connectDB; // ✅ Store DB connection function
+      backendApp = backend.app;
+      connectDB = backend.connectDB;
       console.log("✅ Backend loaded from:", backendPath);
     } catch (err) {
       console.error("❌ Failed to load backend:", err);
@@ -58,7 +58,7 @@ async function startBackend() {
       return;
     }
     await connectDB();
-    backendServer = backendApp.listen(port, () => { // ✅ Store server instance
+    backendServer = backendApp.listen(port, () => {
       console.log(`✅ Backend running at http://localhost:${port}`);
       fs.writeFileSync(PORT_FILE, port.toString().trim(), { encoding: "utf8" });
     });
@@ -144,11 +144,11 @@ app.on("activate", () => {
   if (!win) createWindow();
 });
 
-// ✅ Graceful Shutdown - Fixes backendApp.close issue
+// ✅ Graceful Shutdown
 app.on("before-quit", () => {
-  if (backendServer) { // ✅ Ensure backend server instance exists
-    backendServer.close(() => { 
+  if (backendServer) {
+    backendServer.close(() => {
       console.log("✅ Backend server closed.");
     });
-  }
-});
+    }
+  });

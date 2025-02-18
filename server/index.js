@@ -35,7 +35,7 @@ const server = app.listen(PORT, () => {
     fs.writeFileSync(PORT_FILE, assignedPort.toString());
 });
 
-
+module.exports = { app };
 
 module.exports = { app, connectDB };
 
@@ -48,7 +48,7 @@ const schemaData = mongoose.Schema({
   ProductName: String,
   batches: [
     {
-      BatchNo: Number,
+      BatchNo: String,
       Quantity: Number,
       Discount: Number,
       MfgDate: String,
@@ -69,7 +69,7 @@ const invoiceSchema = mongoose.Schema({
     billedItems: [{
       DrugCode: Number,
       ProductName: String,
-      BatchNo: Number,
+      BatchNo: String,
       Quantity: Number,
       Discount: Number,
       MfgDate: String,
@@ -146,7 +146,7 @@ function normalizeRow(row) {
       DrugCode: parseInt(row.DrugCode || row['Drug Code'], 10),
       ProductName: row.ProductName || row['Product Name'],
       batches: [{
-        BatchNo: parseInt(row.BatchNo || row['Batch No'], 10),
+        BatchNo: row.BatchNo || row['Batch No'],
         Quantity: parseInt(row.Quantity || row.Stock || 0, 10),
         Discount: parseFloat(row.Discount || 0),
         MfgDate: row.MfgDate || row['Mfg Date'],
@@ -340,7 +340,7 @@ app.put('/drug/:DrugCode/batch/:BatchNo', async (req, res) => {
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
-        const batch = medicine.batches.find(batch => batch.BatchNo === parseInt(BatchNo));
+        const batch = medicine.batches.find(batch => batch.BatchNo === BatchNo);
         if (!batch) {
             return res.status(404).json({ message: 'Batch not found' });
         }
@@ -382,14 +382,14 @@ app.put('/drug/:DrugCode/batch/:BatchNo', async (req, res) => {
 app.get("/drug/:DrugCode/batch/:BatchNo", async (req, res) => {
     try {
         const drugCode = req.params.DrugCode;
-        const batchNo = req.params.BatchNo;
+        const batchNo = decodeURIComponent(req.params.BatchNo);
 
         const medicine = await medicineModel.findOne({ DrugCode: parseInt(drugCode) });
         if (!medicine) {
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
-        const batch = medicine.batches.find(batch => batch.BatchNo === parseInt(batchNo));
+        const batch = medicine.batches.find(batch => batch.BatchNo === batchNo);
         if (!batch) {
             return res.status(404).json({ message: 'Batch not found' });
         }
